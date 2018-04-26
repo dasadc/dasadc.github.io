@@ -4,7 +4,7 @@
 
 ## 最新情報
 
-- 2017-04-23 初版を公開しました
+- 2018-04-23 初版を公開しました
 
 ## 概要
 
@@ -35,13 +35,34 @@ ADCへの参加を希望する方は、DAシンポジウム2018の発表申込�
 
 2017年には、ビアの位置を指定せず、自由に選べるようにしました(線の端点が直接ビアに接続されるのも可)。また、盤面サイズの最大値を36X36から72X72に拡大しました。
 
+![theme](images/image1.gif "theme")
+
 2017年のADCでは、残念ながら全問正解するチームはありませんでした。そこで、2018年は、基本的なルールおよび問題サイズは2017年を踏襲するものとします。ただし、解の品質に関して、以下の評価項目を付け加えます。
 
-    Z平面において、縦方向（Y方向）、横方向（X方向）それぞれにおいて、3マス以上他の線と隣接しているマス数が少ないこと
+- Z平面において、縦方向（Y方向）、横方向（X方向）それぞれにおいて、3マス以上他の線と隣接しているマス数が少ないこと
 
 この制約は、LSIチップにおけるクロストーク問題の影響をできるだけ小さくするため、ある2つの配線が平行して通る長さを短くするように配線することを意識した指標です。また、この評価指標は、Z方向の各配線層内のみで適用するものとします。異なるZ平面で配線が隣接していてもカウントしません。
 
-![theme](images/image1.gif "theme")
+これに合わせて、2018年の解の品質の式は、以下のようになります。
+
+    （解の品質） ＝ １／（（線長の合計）＋（線が曲がった回数）＋（平行区間の数））
+
+平行区間の数の計算方法のイメージを、以下に示します。
+
+```python
+def calc_number_of_parallel_cells():
+    number_of_parallel_cells = 0
+    for line1 in range(1, number_of_lines):
+        for line2 in range(line1+1, number_of_lines+1):
+            para_len = get_parallel_line_length(line1, line2)
+            if 3 <= para_len:
+                number_of_parallel_cells += 1
+    return number_of_parallel_cells
+```
+
+`get_parallel_line_length`は、線と線が隣接するマスの数の合計を求めます（図参照）。
+
+![parallel line length](images/ADC2018_para-len.png "parallel line length")
 
 
 ## ルールの詳細
