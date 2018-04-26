@@ -50,14 +50,14 @@ ADCへの参加を希望する方は、DAシンポジウム2018の発表申込�
 平行区間の数の計算方法のイメージを、以下に示します。
 
 ```python
-def calc_number_of_parallel_cells():
-    number_of_parallel_cells = 0
+def get_number_of_parallel_lines():
+    number_of_parallel_lines = 0
     for line1 in range(1, number_of_lines):
         for line2 in range(line1+1, number_of_lines+1):
             para_len = get_parallel_line_length(line1, line2)
             if 3 <= para_len:
-                number_of_parallel_cells += 1
-    return number_of_parallel_cells
+                number_of_parallel_lines += 1
+    return number_of_parallel_lines
 ```
 
 `get_parallel_line_length`は、線と線が隣接するマスの数の合計を求めます（図参照）。
