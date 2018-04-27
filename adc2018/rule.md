@@ -86,7 +86,7 @@ def calc_number_of_parallel_cells():
     for line1 in range(1, number_of_lines):
         for line2 in range(line1+1, number_of_lines+1):
             para_len = get_parallel_line_length(line1, line2)
-            if 3 <= para_len:
+            if 5 <= para_len:
                 number_of_parallel_cells += para_len
     return number_of_parallel_cells
 ```
