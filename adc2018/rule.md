@@ -78,6 +78,23 @@
 
 上図(1)、上図(3)は線長の合計と線が曲った回数は同じですが、隣接している境界の数が17と3で異なります。(3)の方が品質がよいものとします。
 
+並行区間の数の計算方法のイメージを、以下に示します。
+
+```python
+def calc_number_of_parallel_cells():
+    number_of_parallel_cells = 0
+    for line1 in range(1, number_of_lines):
+        for line2 in range(line1+1, number_of_lines+1):
+            para_len = get_parallel_line_length(line1, line2)
+            if 3 <= para_len:
+                number_of_parallel_cells += para_len
+    return number_of_parallel_cells
+```
+
+`get_parallel_line_length`は、線と線が隣接するマスの数の合計を求めます（下図参照）。
+
+![parallel line length](images/.png "parallel line length")
+
 #### 計算式
 
 TBD
