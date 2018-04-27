@@ -91,7 +91,7 @@ def calc_number_of_parallel_cells():
     return number_of_parallel_cells
 ```
 
-`get_parallel_line_length`は、線と線が隣接するマスの数の合計を求めます（下図参照）。
+`get_parallel_line_length`は、線と線が隣接する境界の数の合計を求めます（下図参照）。
 
 ![parallel line length](images/rule-neighbor4.png "parallel line length")
 
