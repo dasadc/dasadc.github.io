@@ -2,7 +2,7 @@
 
 このサイトでは、[DAシンポジウム2018](http://www.sig-sldm.org/das/)で行うアルゴリズムデザインコンテスト(ADC)の参加者向け解説、およびコンテスト内にて使用する「自動運営システム」についての解説を行います。
 
-# DAシンポジウム2018 [問題コンテスト](https://dasadc.github.io/adc2018/exam.html)
+## DAシンポジウム2018 [問題コンテスト](https://dasadc.github.io/adc2018/exam.html)
 
 ## 最新情報
 
