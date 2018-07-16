@@ -6,7 +6,7 @@
 
 ## 最新情報
 
-- 2018-07-16 [解答チェックツール(nlcheckpy)](https://dasadc.github.io/adc2018/nlcheck.py)を更新しました
+- 2018-07-16 [解答チェックツール(nlcheck.py)](https://dasadc.github.io/adc2018/nlcheck.html)を更新しました
 - 2018-06-12 2018年は解答者側だけでなく、[出題者側の「ADC問題コンテスト」](https://dasadc.github.io/adc2018/exam.html)も実施致します
 - 2018-05-07 2018年の解の品質の式を公開しました
 - 2018-04-27 初版を公開しました
