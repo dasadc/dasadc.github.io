@@ -20,6 +20,7 @@
    (~~７月上旬頃の予定~~) (8月)
    
    事前確認サイトＵＲＬ： https://das-adc.appspot.com/2017/
+
    送付した情報でログイン後、再度上記URLにアクセスして確認して下さい。
    
 2. [ADCサービスの利用方法](https://github.com/dasadc/conmgr/blob/master/adc2015.md)を見ながら、動作確認してください。
