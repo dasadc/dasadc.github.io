@@ -1,0 +1,632 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>adc2019 module &#8212; adc2019 20190802 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '20190802',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head>
+  <body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">adc2019 20190802 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-adc2019">
+<span id="adc2019-module"></span><h1>adc2019 module<a class="headerlink" href="#module-adc2019" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="da-symbosium-2019-algorithm-design-contest">
+<h2>DA Symbosium 2019 Algorithm Design Contest<a class="headerlink" href="#da-symbosium-2019-algorithm-design-contest" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="variables">
+<h3>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>block <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><ul class="first last simple">
+<li><dl class="first docutils">
+<dt>key is tuple (type, index)</dt>
+<dd><ul class="first last">
+<li>type is string, {‘a’, ‘b’, … ‘g’}, see below <a class="reference internal" href="#image-block-type"><span class="std std-ref">block type name</span></a> image.</li>
+<li>index is int, {0, 1, 2, 3} means rotation 0, 90, 180, 270.</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li>value is list of string, block data.</li>
+</ul>
+</dd>
+<dt>np_block <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd>same as block, but value is numpy array</dd>
+<dt>block_color <span class="classifier-delimiter">:</span> <span class="classifier">dict</span></dt>
+<dd><ul class="first last simple">
+<li>key is string, {‘a’, ‘b’, … ‘g’}</li>
+<li>value is string, RGB color ‘#0123ab’</li>
+</ul>
+</dd>
+</dl>
+<div class="section" id="block-type-name">
+<span id="image-block-type"></span><h4>block type name<a class="headerlink" href="#block-type-name" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li>tetromino is ‘a’, ‘b’, ‘c’, ‘d’, ‘e’, ‘f’, ‘g’.</li>
+<li>monomino is ‘z’.</li>
+</ul>
+<img alt="../_images/block_type.png" src="../_images/block_type.png" />
+<dl class="function">
+<dt id="adc2019.bounding_box">
+<code class="descclassname">adc2019.</code><code class="descname">bounding_box</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#bounding_box"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.bounding_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>ignore all-zero rows and columns and get bounding box of array</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>a</strong> (<em>numpy array</em>) – array</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>x0, y0, x1, y1</strong> – (x0,y0) = left-top
+(x1,y1) = right bottom</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple of int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.check">
+<code class="descclassname">adc2019.</code><code class="descname">check</code><span class="sig-paren">(</span><em>Q_file</em>, <em>A_file</em>, <em>report=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.check" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Q_file</strong> (<em>None</em><em> or </em><em>[</em><em>str</em><em>]</em>) – filename of Q text file</li>
+<li><strong>A_file</strong> (<em>None</em><em> or </em><em>[</em><em>str</em><em>]</em>) – filename of A text file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>check_data</strong> – see <a class="reference internal" href="#adc2019.check_data" title="adc2019.check_data"><code class="xref py py-meth docutils literal"><span class="pre">adc2019.check_data()</span></code></a></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.check_data">
+<code class="descclassname">adc2019.</code><code class="descname">check_data</code><span class="sig-paren">(</span><em>data_Q</em>, <em>data_A</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#check_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.check_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check block position is correct in board data.
+Number in block definition must be equal to number in board data.
+Check Number Link puzzle rules.
+Calculate attribute values of DA Symposium Algotirim Design Contest.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_Q</strong> (<em>tuple</em>) – return value of read_Q()</li>
+<li><strong>data_A</strong> (<em>tuple</em>) – return value of read_A()</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>info</strong> – several information of check results</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ban_data</span>
+<span class="go">array([[ 0,  1,  1,  1,  1,  2,  2,  2,  2],</span>
+<span class="go">       [ 0,  0,  0,  0,  4,  0,  0,  0,  2],</span>
+<span class="go">       [ 0,  8,  8,  8,  4,  4,  4,  4,  2],</span>
+<span class="go">       [ 0,  7,  7,  6,  0,  0,  0,  4,  2],</span>
+<span class="go">       [10, 10, 10,  6,  0,  2,  0,  4,  2],</span>
+<span class="go">       [ 0,  9,  5,  5, 11,  2,  2,  2,  2],</span>
+<span class="go">       [ 3,  9,  0,  0, 11,  0,  0,  0,  0],</span>
+<span class="go">       [ 3,  3,  3,  3,  3,  3,  3,  0,  0]])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">block_size</span>
+<span class="go">[None, (1, 4), (3, 2), (2, 3), (2, 2), (3, 2), (3, 2), (3, 2), (3, 2)]</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">block_pos</span>
+<span class="go">[None, (1, 0), (2, 2), (0, 4), (4, 0), (4, 6), (3, 4), (1, 4), (5, 3)]</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">block_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bx</span><span class="p">,</span><span class="n">by</span> <span class="o">=</span> <span class="n">block_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">bx</span><span class="p">,</span><span class="n">by</span>
+<span class="go">(1, 0, 1, 4)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ban_data</span><span class="p">[</span><span class="n">y</span><span class="p">:(</span><span class="n">y</span><span class="o">+</span><span class="n">by</span><span class="p">),</span> <span class="n">x</span><span class="p">:(</span><span class="n">x</span><span class="o">+</span><span class="n">bx</span><span class="p">)]</span>
+<span class="go">array([[1],</span>
+<span class="go">       [0],</span>
+<span class="go">       [8],</span>
+<span class="go">       [7]])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">block_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">array([[ 1],</span>
+<span class="go">       [-1],</span>
+<span class="go">       [ 8],</span>
+<span class="go">       [ 7]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.check_lines">
+<code class="descclassname">adc2019.</code><code class="descname">check_lines</code><span class="sig-paren">(</span><em>ban_data</em>, <em>terminal</em>, <em>count</em>, <em>corner</em>, <em>n_lines</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#check_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.check_lines" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li>check-A10: 数字マスは、線の端点である。昔のnlcheck.pyのcheck_3に相当。</li>
+<li>check-A11: 線は枝分かれしない。昔のnlcheck.pyのcheck_4に相当。</li>
+<li>check-A12: 線はつながっている。昔のnlcheck.pyのcheck_5に相当。</li>
+<li>線の長さを計算する。</li>
+<li>線の折れ曲がり回数を計算する。</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ban_data</strong> (<em>numpy array</em>) – board data</li>
+<li><strong>terminal</strong> (<em>list of dict</em>) – given from detect_terminal</li>
+<li><strong>count</strong> (<em>numpy array</em>) – given from count_neighbors</li>
+<li><strong>corner</strong> (<em>numpy array</em>) – given from count_neighbors</li>
+<li><strong>n_lines</strong> (<em>int</em>) – number of lines</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><ul class="simple">
+<li><strong>line_length</strong> (<em>numpy array</em>) – length of lines</li>
+<li><strong>line_corner</strong> (<em>numpy array</em>) – number of corners of lines</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">RuntimeError</span></code> – a condition is not satisfied.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.count_neighbors">
+<code class="descclassname">adc2019.</code><code class="descname">count_neighbors</code><span class="sig-paren">(</span><em>a</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#count_neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.count_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>count</p>
+<p>count number of cells in neighbors</p>
+<p class="rubric">Examples</p>
+<div class="line-block">
+<div class="line">□…target  Ｘ…neighbor</div>
+<div class="line"><br /></div>
+<div class="line-block">
+<div class="line-block">
+<div class="line">Ｘ           N</div>
+</div>
+<div class="line">Ｘ□Ｘ        W□E</div>
+<div class="line-block">
+<div class="line">Ｘ           S</div>
+<div class="line-block">
+<div class="line">4C2 = 6</div>
+</div>
+</div>
+</div>
+<div class="line">(線の折れ曲がり) = (接続数=2) &amp;&amp; (直線で突き抜けている場合を除く)</div>
+<div class="line">■      ■      ■□      □■</div>
+<div class="line">□■    ■□      ■      ■</div>
+<div class="line"><br /></div>
+<div class="line">(直線で突き抜けている場合) = north_eq &amp;&amp; south_eq || west_eq &amp;&amp; north_eq</div>
+<div class="line">■      ■□■</div>
+<div class="line">□</div>
+<div class="line">■</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>a</strong> (<em>numpy array</em>) – board data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>count</strong> (<em>numpy array</em>) – number of cells located in neighbor(E,N,W,S) with same number</li>
+<li><strong>corner</strong> (<em>numpy array</em>) – 1 = corner of line</li>
+<li><strong>east_eq</strong> (<em>numpy array</em>) – 0 = cell has same number with east cell. 1 = not</li>
+<li><strong>north_eq</strong> (<em>numpy array</em>) – 0 = cell has same number with north cell. 1 = not</li>
+<li><strong>west_eq</strong> (<em>numpy array</em>) – 0 = cell has same number with west cell. 1 = not</li>
+<li><strong>south_eq</strong> (<em>numpy array</em>) – 0 = cell has same number with south cell. 1 = not</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">array([[ 0,  1,  1,  1,  1,  2,  2,  2,  2],</span>
+<span class="go">       [ 0,  0,  0,  0,  4,  0,  0,  0,  2],</span>
+<span class="go">       [ 0,  8,  8,  8,  4,  4,  4,  4,  2],</span>
+<span class="go">       [ 0,  7,  7,  6,  0,  0,  0,  4,  2],</span>
+<span class="go">       [10, 10, 10,  6,  0,  2,  0,  4,  2],</span>
+<span class="go">       [ 0,  9,  5,  5, 11,  2,  2,  2,  2],</span>
+<span class="go">       [ 3,  9,  0,  0, 11,  0,  0,  0,  0],</span>
+<span class="go">       [ 3,  3,  3,  3,  3,  3,  3,  0,  0]])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">count</span>
+<span class="go">array([[0, 1, 2, 2, 1, 1, 2, 2, 2],</span>
+<span class="go">       [0, 0, 0, 0, 1, 0, 0, 0, 2],</span>
+<span class="go">       [0, 1, 2, 1, 2, 2, 2, 2, 2],</span>
+<span class="go">       [0, 1, 1, 1, 0, 0, 0, 2, 2],</span>
+<span class="go">       [1, 2, 1, 1, 0, 1, 0, 1, 2],</span>
+<span class="go">       [0, 1, 1, 1, 1, 2, 2, 2, 2],</span>
+<span class="go">       [1, 1, 0, 0, 1, 0, 0, 0, 0],</span>
+<span class="go">       [2, 2, 2, 2, 2, 2, 1, 0, 0]])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">corner</span>
+<span class="go">array([[0, 0, 0, 0, 0, 0, 0, 0, 1],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, 0, 1, 0, 0, 1, 0],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, 0, 0, 1, 0, 0, 1],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [1, 0, 0, 0, 0, 0, 0, 0, 0]])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">east_eq</span>
+<span class="go">array([[0, 1, 1, 1, 0, 1, 1, 1, 0],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 1, 1, 0, 1, 1, 1, 0, 0],</span>
+<span class="go">       [0, 1, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [1, 1, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 0, 1, 0, 0, 1, 1, 1, 0],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [1, 1, 1, 1, 1, 1, 0, 0, 0]])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">north_eq</span>
+<span class="go">array([[0, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 1],</span>
+<span class="go">       [0, 0, 0, 0, 1, 0, 0, 0, 1],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 1, 1],</span>
+<span class="go">       [0, 0, 0, 1, 0, 0, 0, 1, 1],</span>
+<span class="go">       [0, 0, 0, 0, 0, 1, 0, 0, 1],</span>
+<span class="go">       [0, 1, 0, 0, 1, 0, 0, 0, 0],</span>
+<span class="go">       [1, 0, 0, 0, 0, 0, 0, 0, 0]])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">west_eq</span>
+<span class="go">array([[0, 0, 1, 1, 1, 0, 1, 1, 1],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 0, 1, 1, 0, 1, 1, 1, 0],</span>
+<span class="go">       [0, 0, 1, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 1, 1, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, 1, 0, 0, 1, 1, 1],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 1, 1, 1, 1, 1, 1, 0, 0]])</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">south_eq</span>
+<span class="go">array([[0, 0, 0, 0, 0, 0, 0, 0, 1],</span>
+<span class="go">       [0, 0, 0, 0, 1, 0, 0, 0, 1],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 1, 1],</span>
+<span class="go">       [0, 0, 0, 1, 0, 0, 0, 1, 1],</span>
+<span class="go">       [0, 0, 0, 0, 0, 1, 0, 0, 1],</span>
+<span class="go">       [0, 1, 0, 0, 1, 0, 0, 0, 0],</span>
+<span class="go">       [1, 0, 0, 0, 0, 0, 0, 0, 0],</span>
+<span class="go">       [0, 0, 0, 0, 0, 0, 0, 0, 0]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.detect_terminal">
+<code class="descclassname">adc2019.</code><code class="descname">detect_terminal</code><span class="sig-paren">(</span><em>n_lines_Q</em>, <em>block_data_Q</em>, <em>block_pos_A</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#detect_terminal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.detect_terminal" title="Permalink to this definition">¶</a></dt>
+<dd><p>detect start and end point of number-lines</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_lines_Q</strong> (<em>int</em>) – number of lines</li>
+<li><strong>block_data_Q</strong> (<em>list of numpy array</em>) – block shape data</li>
+<li><strong>block_pos_A</strong> (<em>list of tupple</em>) – block position</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>terminal</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list of dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">terminal</span>
+<span class="go">[{&#39;block&#39;: 1, &#39;xy&#39;: (1, 0)}, {&#39;block&#39;: 4, &#39;xy&#39;: (4, 0)}],</span>
+<span class="go">[{&#39;block&#39;: 4, &#39;xy&#39;: (5, 0)}, {&#39;block&#39;: 6, &#39;xy&#39;: (5, 4)}],</span>
+<span class="go">[{&#39;block&#39;: 3, &#39;xy&#39;: (0, 6)}, {&#39;block&#39;: 5, &#39;xy&#39;: (6, 7)}],</span>
+<span class="go">[{&#39;block&#39;: 4, &#39;xy&#39;: (4, 1)}, {&#39;block&#39;: 8, &#39;xy&#39;: (7, 4)}],</span>
+<span class="go">[{&#39;block&#39;: 6, &#39;xy&#39;: (3, 5)}, {&#39;block&#39;: 7, &#39;xy&#39;: (2, 5)}],</span>
+<span class="go">[{&#39;block&#39;: 2, &#39;xy&#39;: (3, 3)}, {&#39;block&#39;: 7, &#39;xy&#39;: (3, 4)}],</span>
+<span class="go">[{&#39;block&#39;: 1, &#39;xy&#39;: (1, 3)}, {&#39;block&#39;: 2, &#39;xy&#39;: (2, 3)}],</span>
+<span class="go">[{&#39;block&#39;: 1, &#39;xy&#39;: (1, 2)}, {&#39;block&#39;: 2, &#39;xy&#39;: (3, 2)}],</span>
+<span class="go">[{&#39;block&#39;: 3, &#39;xy&#39;: (1, 6)}, {&#39;block&#39;: 7, &#39;xy&#39;: (1, 5)}],</span>
+<span class="go">[{&#39;block&#39;: 3, &#39;xy&#39;: (0, 4)}, {&#39;block&#39;: 7, &#39;xy&#39;: (2, 4)}],</span>
+<span class="go">[{&#39;block&#39;: 5, &#39;xy&#39;: (4, 6)}, {&#39;block&#39;: 6, &#39;xy&#39;: (4, 5)}]]</span>
+</pre></div>
+</div>
+<p>index=0 is unused.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.main">
+<code class="descclassname">adc2019.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>command line interface</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.match_block_shape">
+<code class="descclassname">adc2019.</code><code class="descname">match_block_shape</code><span class="sig-paren">(</span><em>npb</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#match_block_shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.match_block_shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>from numpy array block data, detect block shape type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>npb</strong> (<em>numpy array</em>) – one of elements of block_data returned from read_Q()</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>k</strong> – type is string, {‘a’, ‘b’, … ‘g’}
+index is int, {0, 1, 2, 3}</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple  (type, index)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.prt">
+<code class="descclassname">adc2019.</code><code class="descname">prt</code><span class="sig-paren">(</span><em>key</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#prt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.prt" title="Permalink to this definition">¶</a></dt>
+<dd><p>debug print block data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> (<em>tuple</em><em> (</em><em>type</em><em>, </em><em>index</em><em>)</em>) – <div class="line-block">
+<div class="line">type = {‘a’, ‘b’, … ‘g’}</div>
+<div class="line">index = {0, 1, 2, 3}</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.read_A">
+<code class="descclassname">adc2019.</code><code class="descname">read_A</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#read_A"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.read_A" title="Permalink to this definition">¶</a></dt>
+<dd><p>read A data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>str</em>) – <div class="line-block">
+<div class="line">A data is like</div>
+<div class="line">SIZE 9X8</div>
+<div class="line">0, 1, 1, 1, 1, 2, 2, 2, 2</div>
+<div class="line">0, 0, …</div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>size</strong> (<em>tuple</em>) – For example (9,8) in case of ‘SIZE 9X8’</li>
+<li><strong>ban_data</strong> (<em>numpy array</em>) – board data</li>
+<li><strong>block_pos</strong> (<em>dict</em>)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.read_A_file">
+<code class="descclassname">adc2019.</code><code class="descname">read_A_file</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#read_A_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.read_A_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>read A file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<em>str</em>) – filename</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>read_A</strong> – see <a class="reference internal" href="#adc2019.read_A" title="adc2019.read_A"><code class="xref py py-meth docutils literal"><span class="pre">adc2019.read_A()</span></code></a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.read_Q">
+<code class="descclassname">adc2019.</code><code class="descname">read_Q</code><span class="sig-paren">(</span><em>s</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#read_Q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.read_Q" title="Permalink to this definition">¶</a></dt>
+<dd><p>read Q data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> (<em>str</em>) – <div class="line-block">
+<div class="line">Q data is like</div>
+<div class="line">SIZE 10X10</div>
+<div class="line">BLOCK_NUM 8</div>
+<div class="line">BLOCK#1 1X4</div>
+<div class="line">…</div>
+</div>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>size</strong> (<em>tuple</em>) – (x,y) of line “SIZE xXy”</li>
+<li><strong>block_num</strong> (<em>int</em>) – b of line “BLOCK_NUM b”</li>
+<li><strong>block_size</strong> (<em>list</em>) – list of defined block size.</li>
+<li><strong>block_data</strong> (<em>list of numpy array, dtype=int</em>) – list of defined block data.</li>
+<li><strong>block_type</strong> (<em>list of tuple</em>) – (type, index)</li>
+<li><strong>n_lines</strong> (<em>int</em>) – number of lines</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>return value of block_size is list of tuple, like
+[(1,4), (3,2), (2,2), …]</p>
+<p>return value of block_data is list of defined block data.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">value</th>
+<th class="head">contents</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>-1</td>
+<td>block cell without number</td>
+</tr>
+<tr class="row-odd"><td>0</td>
+<td>not block cell</td>
+</tr>
+<tr class="row-even"><td>others</td>
+<td>block cell with number</td>
+</tr>
+</tbody>
+</table>
+<p>return value of block_type is tuple (type, index)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="16%" />
+<col width="23%" />
+<col width="61%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">value</th>
+<th class="head">type</th>
+<th class="head">example</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>type</td>
+<td>string</td>
+<td>{‘a’, ‘b’, … ‘g’}</td>
+</tr>
+<tr class="row-odd"><td>index</td>
+<td>int</td>
+<td>{0, 1, 2, 3}</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="adc2019.read_Q_file">
+<code class="descclassname">adc2019.</code><code class="descname">read_Q_file</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/adc2019.html#read_Q_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#adc2019.read_Q_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>read Q file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> (<em>str</em>) – filename</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>read_Q</strong> – see <a class="reference internal" href="#adc2019.read_Q" title="adc2019.read_Q"><code class="xref py py-meth docutils literal"><span class="pre">adc2019.read_Q()</span></code></a></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">adc2019 20190802 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, IPSJ SLDM.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.5.
+    </div>
+  </body>
+</html>
