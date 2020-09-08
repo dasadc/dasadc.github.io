@@ -14,6 +14,7 @@ DAシンポジウム2020は、新型コロナウイルス感染症の状況を�
 
 ## 最新情報
 
+- 2020-09-08 [当日参加のお知らせ](20200908.md)
 - 2020-09-07 [自動運営システム](https://github.com/dasadc/adc2019/tree/adc2020-yt)の一部である、[ウェブアプリclient-app](https://github.com/dasadc/adc2019/blob/adc2020-yt/client-app/README.md)の新機能「Edit」を、[GitHub Pagesから試用できます](https://dasadc.github.io/static/app/index.html#/edit)（注意: client-appの、"Edit"メニューのみ動作します）。
     - （回答作成） ウェブブラウザ上で、問題データ（Qファイル）を読み込み、ブロックを並べ、配線を行い、回答データ（Aファイル）を生成できます。
 	- （問題作成） ウェブブラウザ上で、ブロックを並べ、配線を行い、問題データ（Qファイル）と回答データ（Aファイル）を生成できます。
