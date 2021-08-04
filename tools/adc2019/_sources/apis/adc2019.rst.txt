@@ -1,7 +1,0 @@
-adc2019 module
-==============
-
-.. automodule:: adc2019
-    :members:
-    :undoc-members:
-    :show-inheritance:
