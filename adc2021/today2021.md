@@ -23,12 +23,10 @@ screen shot 2
 
 詳しい使い方は、[このドキュメント](https://github.com/dasadc/adc2019/blob/adc2020-yt/client-app/README.md#edit) を見てください。
 
-コンテスト開始後、問題データファイルを入手するためのURLを、webexのチャットで送ります。
-
-1. ウェブアプリで、問題データファイルをアップロードして、
+1. ウェブアプリで、問題データファイルを読み込んで、
 2. 問題をといて、
 3. 回答データをファイルに保存してください。
-4. コンテスト時間終了後(14:50予定)に、ファイルをzipでアーカイブして、メールで送付してください。送付先アドレスは、その時にお知らせします
+4. コンテスト時間終了後(14:50予定)に、ファイルをzipでアーカイブして、メールで送付してください。送付先アドレスは、das-adc2021today@googlegroups.comです
 
 
 ウェブアプリの使い方
@@ -47,7 +45,7 @@ screen shot 2
 - [sample_hiromoto_10_Q.txt](https://raw.githubusercontent.com/dasadc/adc2019/adc2020-yt/samples/Q/sample_hiromoto_10_Q.txt)
 
 
-### (2) 問題データをアップロードする
+### (2) 問題データを読み込む
 
 [ウェブアプリ](http://das-adc.duckdns.org:22113/static/app/index.html#/edit)
 にアクセスします。
