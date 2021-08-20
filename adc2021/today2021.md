@@ -34,7 +34,7 @@ screen shot 2
 
 ### (1) 問題データの入手
 
-[当日参加問題(開催初日までにアップロード予定)](onsite_today.zip)
+[当日参加問題(開催初日までにアップロード予定)](docs/onsite_today.zip)
 
 [サンプル問題データ](https://github.com/dasadc/adc2019/tree/adc2020-yt/samples/Q)
 
