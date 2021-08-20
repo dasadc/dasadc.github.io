@@ -12,7 +12,7 @@
 --------------------------------------------
 
 ADC専用ウェブアプリを使って、問題に挑戦できます。
-ウェブアプリは、[こちらです](https://dasadc.github.io/static/app/index.html#/edit)
+ウェブアプリは、[こちらです](https://dasadc.github.io/static/app/index.html#/edit)。
 Chorome、FireFoxをご利用ください。
 
 screen shot 1  
