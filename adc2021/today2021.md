@@ -35,7 +35,9 @@ screen shot 2
 
 ### (1) 問題データの入手
 
-[問題データ(開催初日にアップ予定)](https://github.com/dasadc/adc2019/tree/adc2020-yt/samples/Q)
+[当日参加問題(開催初日までにアップロード予定)](onsite_today.zip)
+
+[サンプル問題データ](https://github.com/dasadc/adc2019/tree/adc2020-yt/samples/Q)
 
 ファイルをクリックして表示してから、「Raw」を右クリックして、ファイルに保存してください。
 
