@@ -21,7 +21,7 @@ screen shot 1
 screen shot 2  
 ![adc-20200908-1.png](adc-20200908-1.png)
 
-使い方は、[このドキュメント](https://github.com/dasadc/adc2019/blob/adc2020-yt/client-app/README.md#edit) を見てください。
+詳しい使い方は、[このドキュメント](https://github.com/dasadc/adc2019/blob/adc2020-yt/client-app/README.md#edit) を見てください。
 
 コンテスト開始後、問題データファイルを入手するためのURLを、webexのチャットで送ります。
 
@@ -78,4 +78,4 @@ screen shot 2
 
 「write A」ボタンをクリックして、ファイル名を指定して、ダウンロードしてください。
 
-言い忘れました。「Q-Number」に、問題データの番号を入力しておけば、それがファイル名に使われます。
+なお、「Q-Number」に、問題データの番号を入力しておけば、それがファイル名に使われます。
