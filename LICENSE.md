@@ -5,4 +5,5 @@
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">クリエイティブ・コモンズ 表示 4.0 国際 ライセンス</a>
 の下に提供されています。
 
-Copyright (c) 2017 DAシンポジウム実行委員会
+---
+Copyright (c) 2017-2022 DAシンポジウム実行委員会
