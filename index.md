@@ -1,6 +1,6 @@
 DAシンポジウム アルゴリズムデザインコンテスト
 
-- DAシンポジウム2022 アルゴリズムデザインコンテスト
+- [DAシンポジウム2022 アルゴリズムデザインコンテスト](adc2022/index.md)
 - [自動運営システムの最新情報](https://github.com/dasadc/adc2019/blob/master/README.md#news)
 
 旧情報
