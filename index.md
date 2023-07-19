@@ -1,10 +1,11 @@
-DAシンポジウム アルゴリズムデザインコンテスト
+DAシンポジウム2023 では、従来のアルゴリズムデザインコンテストから趣向を変え、アーキテクチャデザインコンテストを開催いたします。
 
-- [DAシンポジウム2022 アルゴリズムデザインコンテスト](adc2022/index.md)
-- [自動運営システムの最新情報](https://github.com/dasadc/adc2019/blob/master/README.md#news)
+- [DAシンポジウム2023 アーキテクチャデザインコンテスト](adc2023/index.md)
 
 旧情報
 
+- [DAシンポジウム2022 アルゴリズムデザインコンテスト](adc2022/index.md)
+- [DAシンポジウム2022までに使用した自動運営システムの情報](https://github.com/dasadc/adc2019/blob/master/README.md#news)
 - [DAシンポジウム2021 アルゴリズムデザインコンテスト](adc2021/index.md)
 - [DAシンポジウム2020 アルゴリズムデザインコンテスト](adc2020/index.md)
 - [DAシンポジウム2019 アルゴリズムデザインコンテスト](adc2019/index.md)
@@ -15,4 +16,4 @@ DAシンポジウム アルゴリズムデザインコンテスト
 - [DAシンポジウム2015 アルゴリズムデザインコンテスト 自動運営システム](https://github.com/dasadc/conmgr/blob/1d5a45b4d36bd77261680876e648fc2c8f34304a/README.md)
 
 ---
-Copyright (c) 2015-2022 DAシンポジウム実行委員会
+Copyright (c) 2015-2023 DAシンポジウム実行委員会

@@ -1,0 +1,8 @@
+read_verilog -sv sigmo_lin32.v
+hierarchy -top sigmo_lin32
+proc; opt 
+flatten; opt 
+techmap; opt
+abc -lut 4; opt
+clean
+write_verilog -noexpr -decimal sigmo_lin32_net.v
