@@ -23,8 +23,8 @@ DAシンポジウムでは、2012年よりデザインコンテストを開催�
 - 申し込み締め切り：2024年7月19日 (金)
 - 参加形態はポスター発表です。
 - 参加を希望される方は、下記２つのリンクに両方とも入力してください。
-https://service.kktcs.co.jp/smms2/m2event/ipsj1/201801081
-https://forms.office.com/r/0GxPBMspm4
+<https://service.kktcs.co.jp/smms2/m2event/ipsj1/201801081>  
+<https://forms.office.com/r/0GxPBMspm4>
 
 - コンテストへの参加はチームでの参加も可能です。チームで参加申込の際は、発表申込ページの「その他の連絡事項等」欄に参加チーム名をご記入下さい。
 - プログラミング競技、FPGA競技ともに、2024年8月23日 (金)まで課題提出が可能です。
