@@ -4,7 +4,7 @@
 # FPGA競技について
 
 # 提供物
-[model.tar.gz](adc2024/model.tar.gz)からダウンロードしてください。
+[model.tar.gz](model.tar.gz)からダウンロードしてください。
 
 
 # ソースファイルについて
