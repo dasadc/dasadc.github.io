@@ -20,7 +20,7 @@ DAシンポジウムでは、2012年からデザインコンテストを開催�
 
 ## 参加申し込み
 
-- 申し込み締め切り：<span style="color: red;">2024年7月26日 (金) 延長しました！</span>
+- 申し込み締め切り：<span style="color: red;">2024年7月19日 (金)</span>
 - 参加を希望される方は、下記２つのリンクに両方とも入力してください。  
 <https://service.kktcs.co.jp/smms2/m2event/ipsj1/201801081>  
 <https://forms.office.com/r/0GxPBMspm4>
