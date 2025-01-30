@@ -18,4 +18,4 @@
 - [DAシンポジウム2015 アルゴリズムデザインコンテスト 自動運営システム](https://github.com/dasadc/conmgr/blob/1d5a45b4d36bd77261680876e648fc2c8f34304a/README.md)
 
 ---
-Copyright (c) 2015-2023 DAシンポジウム実行委員会
+Copyright (c) 2015-2025 DAシンポジウム実行委員会
