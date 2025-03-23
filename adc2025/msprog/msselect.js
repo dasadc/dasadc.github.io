@@ -279,6 +279,8 @@ class Board {
   append(name, data) {
     this.nameList.push(name);
     this.dataList.push(data);
+    //console.log('appended name', name);
+    //console.log('appended data', data);
   }
   fetch(name) {
     const idx = this.nameList.indexOf(name);
@@ -305,8 +307,9 @@ class Board {
     let lines = [];
     // header is size_x size_y board_name
     // \s matches newline !!
-    const header = data[0].match(/^[ ]*(\d+)[ ]+(\d+)/);
-    const itemList = data[0].split(/[ ]+/);
+    const line1 = data[0].trim();
+    const header = line1.match(/^(\d+)[ ]+(\d+)/);
+    const itemList = line1.split(/[ ]+/);
     //console.log('header is', header);
     if (header!=null) {
       // 1st line is (size_x, size_y)
@@ -410,6 +413,28 @@ function createBoardSelector() {
   }
   */
 }
+// read file data (result) and split header and others
+function parseBoardFile (result) {
+  const lines = removeEmptyItems(result.split(/\r\n|\n/));
+  const line1 = lines[0].trim();
+  const matches = line1.match(/^(\d+)[ ]+(\d+)/);
+  let header = '';
+  let contents = '';
+  let data = [];
+  if (matches != null) {
+    header = line1;
+    // contents starts from 2nd line
+    for (let line = 1; line < lines.length; line++) {
+      contents += lines[line];
+    }
+    // 2-item list
+    data = [header, contents];
+  } else {
+    // 1-item list
+    data = [lines.join('\n')];
+  }
+  return [...data];
+}
 function fileChanged(input) {
   const reader = new FileReader(); // FileReader object
   //console.log(input);
@@ -428,7 +453,7 @@ function addFileLoadEventListener(reader, fileName) {
   reader.addEventListener("load", function(){
     const bdroot = new Board();
     //console.log(fileName, this.result);
-    bdroot.append(fileName, [ this.result ]);
+    bdroot.append(fileName, parseBoardFile(this.result));
     bdroot.load(fileName);
   });
 }
