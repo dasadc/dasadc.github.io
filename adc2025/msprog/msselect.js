@@ -13,9 +13,10 @@ class cellElem {
     this.node = this.list[this.index];
     this.value = this.node.innerHTML;
   }
-  location() {
-    const x = this.index % SIZE_X;
-    const y = parseInt(this.index / SIZE_X);
+  location(givenIndex) {
+    let myindex = (givenIndex !== undefined) ? givenIndex : this.index;
+    const x = myindex % SIZE_X;
+    const y = parseInt(myindex / SIZE_X);
     return [x,y];
   }
   update() {
@@ -81,13 +82,13 @@ class cellElem {
     return (this.value == 0) ? 1 : 0;
   }
   isBomb() {
-    return (this.value >= 9) ? 1 : 0;
+    return (this.value >= MINES_VALUE) ? 1 : 0;
   }
   access(source) {
-    if (source == 'primary') {
+    if (source.slice(-1).shift() == 'primary') {
       if (!this.isTouch() && !this.isFlag() && !FLAG) {
         const [x, y] = this.location();
-        printDialog(`(${x},${y})`);
+        printDialog(`${x} ${y}`);
       }
     }
     accessCell(this.index, this.list, this, source);
@@ -194,7 +195,7 @@ function accessCell(index, cellElemArray, cell, source) {
     }
     // exit from flag update mode
     flagUpdate('toggle');
-  } else if (cell.isFlag() && (source == 'primary')) {
+  } else if (cell.isFlag() && (source.slice(-1).shift == 'primary')) {
     console.log('skip flag', index, source);
   } else {
     cell.touch();
@@ -203,7 +204,8 @@ function accessCell(index, cellElemArray, cell, source) {
     console.log('touch', index, source);
     if (cell.isEmpty()) {
       console.log('empty', index, source);
-      pivotCell(index, cellElemArray, cell, 'expand_region');
+      // pivot to expand reagion
+      pivotCell(index, cellElemArray, cell, 'expand_region', source);
     } else if (cell.isBomb()) {
       cell.bomb();
       const [x, y] = cell.location();
@@ -231,11 +233,31 @@ function pibotAdjacent(cur, min, max) {
   return [...list];
 }
 // pivot around given index (board location)
-function pivotCell(index, cellElemArray, cell, task) {
+function pivotCell(index, cellElemArray, cell, task, source) {
+  const SKIP_SAME_LOC_AS_SOURCE = 1;
   let pivot = [];
   const [x, y] = cell.location();
-  const x_idx = pibotAdjacent(x, 0, SIZE_X-1);
-  const y_idx = pibotAdjacent(y, 0, SIZE_Y-1);
+  let x_idx = pibotAdjacent(x, 0, SIZE_X-1);
+  let y_idx = pibotAdjacent(y, 0, SIZE_Y-1);
+  if (SKIP_SAME_LOC_AS_SOURCE && (source !== undefined)) {
+    // Cut the first 'primary' and choose the last index (previous index)
+    const traced = source.slice(1).slice(-1);
+    for (let i=0; i < traced.length; i++) {
+      const [tx, ty] = cell.location(traced[i]);
+      //console.log('pivot', index, 'traced', traced, `(${tx}, ${ty})`, 'x_idx', x_idx, 'y_idx', y_idx);
+      const tx_idx = x_idx.indexOf(tx);
+      const ty_idx = y_idx.indexOf(ty);
+      // remove previous tx or ty from pivot list when location changed from previous
+      // x=3, tx=2, x_idx=[2,3,4], but previous tx=2 already traced
+      if ((tx != x) && (tx_idx >= 0)) {
+        x_idx.splice(tx_idx, 1);
+      }
+      if ((ty != y) && (ty_idx >= 0)) {
+        y_idx.splice(ty_idx, 1);
+      }
+      //console.log('modified', 'x_idx', x_idx, 'y_idx', y_idx);
+    }
+  }
   for (let i=0; i < x_idx.length; i++) {
     for (let j=0; j < y_idx.length; j++) {
       pivot.push(SIZE_X*y_idx[j] + x_idx[i]);
@@ -251,7 +273,7 @@ function pivotCell(index, cellElemArray, cell, task) {
       //console.log('pivot from', index, 'to', pivot[i],'('+i+'/'+pivot.length+')');
       switch (task) {
         case 'expand_region':
-          adjCell.access('secondary');
+          adjCell.access(source.concat([index]));
           break;
         case 'count_mines':
           if (adjCell.isBomb()) {
@@ -269,6 +291,7 @@ function pivotCell(index, cellElemArray, cell, task) {
       break;
   }
 }
+// define board bank
 class Board {
   constructor() {
     this.nameList = [];
@@ -282,9 +305,19 @@ class Board {
     //console.log('appended name', name);
     //console.log('appended data', data);
   }
+  push(boardData) {
+    this.nameList.push(boardData.name);
+    this.dataList.push(boardData.data);
+  }
   fetch(name) {
     const idx = this.nameList.indexOf(name);
-    return (idx < 0) ? "undef" : this.dataList[idx];
+    //console.log('fetch', name, idx, this.dataList[idx]);
+    return (idx < 0) ? undefined : this.dataList[idx];
+  }
+  merge(newbd) {
+    while (newbd.nameList.length >0) {
+      this.append(newbd.nameList.shift(),newbd.dataList.shift());
+    }
   }
   check_lines(lines) {
     for (let i = 0; i < this.size_y; i++) {
@@ -304,65 +337,38 @@ class Board {
   }
   get_lines(name) {
     const data = this.fetch(name);
-    let lines = [];
-    // header is size_x size_y board_name
-    // \s matches newline !!
-    const line1 = data[0].trim();
-    const header = line1.match(/^(\d+)[ ]+(\d+)/);
-    const itemList = line1.split(/[ ]+/);
-    //console.log('header is', header);
-    if (header!=null) {
-      // 1st line is (size_x, size_y)
-      this.size_x = Number(header[1]);
-      this.size_y = Number(header[2]);
-      // read board name from 3rd item
-      if (itemList.length >= 3) {
-        BOARD_NAME = itemList[2];
-      } else {
-        BOARD_NAME = name;
-      }
-      // remove all spaces or newlines into 1 line
-      let trimdata = data[1].replace(/\s|\r|\n/g,'');
-      for (let i = 0; i < trimdata.length; i+=this.size_x) {
-        let line = trimdata.slice(i, i+this.size_x);
-        lines.push(line);
-        //console.log('line', i, 'is', line);
-      }
-    } else {
-      // header is not given
-      BOARD_NAME = name;
-      // console.log('data is', data, data.length);
-      if (data.length == 1) {
-        // board data is fetched from file including newlines
-        lines = removeEmptyItems(data[0].split(/\r\n|\n/));
-        //console.log('lines is', lines, 'lines[0].length', lines[0].length);
-      } else {
-        lines = data;
-      }
-      // board data is an array of ['y0-data','y1-data','y2-data'..]
-      this.size_x = lines[0].length;
-      this.size_y = lines.length;
-    }
+    //console.log(data);
+    const bdfile = new boardFile(data.join('\n'));
+    const boardData=bdfile.popData();
+    [this.size_x, this.size_y] = [...bdfile.size]
+    BOARD_NAME = boardData.name;
+    BOARD_HEADER = bdfile.header;
+    //BOARD_NAME = bdfile.boardName();
+    //const lines = boardData[1][1].split(/\r\n|\n/);
+    const lines = boardData.data.slice(-1).shift().split(/\r\n|\n/);
     this.check_lines(lines);
     return [...lines];
   }
   load(name) {
     const lines = this.get_lines(name);
-    printConsole(`board ${BOARD_NAME}`);
+    printConsole(`load ${BOARD_NAME}`);
     resetBoardForm();
     createBoard(lines);
     initializeBoard();
     removeEventListener();
     addCellEventListener();
     addfinishEventListener();
+    printDialog(BOARD_HEADER);
   }
   reset() {
+    // without createBoard()
+    printConsole('resetting board');
     resetBoardForm();
     initializeBoard();
     removeEventListener();
     addCellEventListener();
     addfinishEventListener();
-    printConsole('resetting board');
+    printDialog(BOARD_HEADER);
   }
 }
 
@@ -370,41 +376,51 @@ function removeEmptyItems(array) {
   let newarray = [];
   for (let i = 0; i < array.length; i++) {
     if (array[i].match(/^\s*$/) == null) {
-      newarray.push(array[i]);
+      // remove head and tail spaces
+      newarray.push(array[i].trim().replace(/\s+/g,' '));
     }
   }
   return [...newarray];
 }
-function loadSampleBoard() {
+
+function createSampleBoardSet() {
   const bdroot = new Board();
   const rand = new randomparam();
   //bdroot.append('board-1', ['3 3','111191111']);
   //bdroot.append('board-2', ['111111','191191','111111','111111','191191','111111']);
   //bdroot.append('board-3', ['10 10 board-10x10-3', '0001110000 0112911110 1292111921 1921112129 1110191011 0112221000 0193910000 0119211110 0011101910 0000001110']);
   //bdroot.append(...generateBoard(4, 4, 3, rand));
-  bdroot.append(...generateBoard(4, 4, 2, rand));
-  bdroot.append(...generateBoard(4, 4, 4, rand));
-  bdroot.append(...generateBoard(8, 8, 8, rand));
-  bdroot.append(...generateBoard(8, 8, 16, rand));
-  bdroot.append(...generateBoard(16, 16, 32, rand));
-  bdroot.append(...generateBoard(16, 16, 64, rand));
-  bdroot.append(...generateBoard(10, 20, 25, rand));
-  bdroot.append(...generateBoard(10, 20, 50, rand));
+  bdroot.push(generateBoard(4, 4, 2, rand));
+  bdroot.push(generateBoard(4, 4, 4, rand));
+  bdroot.push(generateBoard(5, 5, 3, rand));
+  bdroot.push(generateBoard(5, 5, 6, rand));
+  bdroot.push(generateBoard(7, 7, 6, rand));
+  bdroot.push(generateBoard(7, 7, 12, rand));
+  bdroot.push(generateBoard(8, 8, 8, rand));
+  bdroot.push(generateBoard(8, 8, 16, rand));
+  bdroot.push(generateBoard(10, 10, 12, rand));
+  bdroot.push(generateBoard(10, 10, 25, rand));
+  bdroot.push(generateBoard(13, 13, 21, rand));
+  bdroot.push(generateBoard(13, 13, 42, rand));
+  bdroot.push(generateBoard(16, 16, 32, rand));
+  bdroot.push(generateBoard(16, 16, 64, rand));
+  bdroot.push(generateBoard(10, 20, 30, rand));
+  bdroot.push(generateBoard(10, 20, 40, rand));
+  bdroot.push(generateBoard(10, 20, 50, rand));
+  bdroot.push(generateBoard(10, 20, 60, rand));
+  bdroot.push(generateBoard(10, 20, 70, rand));
   return bdroot;
 }
-function readSampleBoard(name) {
-  const bdroot = loadSampleBoard();
-  bdroot.load(name);
-}
+
 function createBoardSelector() {
-  bdroot = loadSampleBoard();
+  BDROOT = createSampleBoardSet();
   const bdsel = document.getElementById('myselect');
   // delete previous options of selector
   const options = bdsel.options;
   while (options.length > 0) options.remove(0);
-  for (let bdn = 0; bdn < bdroot.nameList.length; bdn++) {
+  for (let bdn = 0; bdn < BDROOT.nameList.length; bdn++) {
     let newopt = document.createElement('option');
-    newopt.innerHTML = bdroot.nameList[bdn];
+    newopt.innerHTML = BDROOT.nameList[bdn];
     bdsel.appendChild(newopt);
   }
   /*
@@ -413,27 +429,114 @@ function createBoardSelector() {
   }
   */
 }
-// read file data (result) and split header and others
-function parseBoardFile (result) {
-  const lines = removeEmptyItems(result.split(/\r\n|\n/));
-  const line1 = lines[0].trim();
-  const matches = line1.match(/^(\d+)[ ]+(\d+)/);
-  let header = '';
-  let contents = '';
-  let data = [];
-  if (matches != null) {
-    header = line1;
-    // contents starts from 2nd line
-    for (let line = 1; line < lines.length; line++) {
-      contents += lines[line];
-    }
-    // 2-item list
-    data = [header, contents];
-  } else {
-    // 1-item list
-    data = [lines.join('\n')];
+
+function appendBoardSelector(bdroot) {
+  const bdsel = document.getElementById('myselect');
+  // append selector
+  for (let bdn = 0; bdn < bdroot.nameList.length; bdn++) {
+    let newopt = document.createElement('option');
+    newopt.innerHTML = bdroot.nameList[bdn];
+    bdsel.appendChild(newopt);
   }
-  return [...data];
+}
+class boardFile {
+  constructor(fileData, fileName, boardId) {
+    //console.log('fileData',fileData,'fileName',fileName);
+    this.lines = removeEmptyItems(fileData.split(/\r\n|\n/));
+    this.fileName = (fileName == null) ? 'dummy' : fileName;
+    this.header = '';
+    this.fnidx = (boardId == null) ? 1 : boardId;
+    this.size = [];
+    this.mines = 0;
+  }
+  isHeader() {
+    return (this.lines[0].match(/^(\d+)[ ]+(\d+)/) == null) ? 0 : 1;
+  }
+  baseFileName() {
+    // get basename without extension
+    const basenamelist = this.fileName.split('.');
+    return (basenamelist.length >= 2) ? basenamelist.slice(0,-1).join('.') : this.fileName;
+  }
+  boardName() {
+    let fname = [];
+    const itemList = this.header.split(/[ ]+/);
+    if (itemList.length >= 3) {
+      fname.push(itemList[2]);
+    } else {
+      fname.push(this.baseFileName());
+      fname.push(this.size.join('x'));
+      fname.push(this.mines);
+      fname.push(this.fnidx++);
+    }
+    return fname.join('_');;
+  }
+  boardSize(cellData) {
+    //console.log('cellData', cellData);
+    let size = [];
+    if (this.header != '') {
+      size = this.header.split(/[ ]+/).slice(0, 2).map(Number);
+      //console.log('size(1)', size);
+    } else {
+      size = [cellData[0].length, cellData.length];
+      //console.log('size(2)', size);
+    }
+    return [...size];
+  }
+  boardData(boardName, header, cellData) {
+    const data = [header, cellData.join('\n')];
+    //const boardData = [boardName, data];
+    //console.log('boardData(popData)', boardData);
+    //return [...boardData];
+    const boardData = {name: boardName, data: data}
+    return boardData;
+  }
+  cat_and_split(dataList) {
+    let lines = [];
+    const [size_x, size_y] = this.size;
+    //console.log('dataList', dataList, 'size_x', size_x, 'size_y', size_y);
+    const catdata = String(dataList.join('').replace(/\s|\r|\n/g,''));
+    //console.log('catdata', catdata, 'length', catdata.length);
+    for (let i = 0; i < catdata.length; i+=size_x) {
+      let line = catdata.slice(i, i+size_x);
+      //console.log('char', i, 'line', line);
+      lines.push(line);
+    }
+    //console.log('lines', lines);
+    return [...lines];
+  }
+  count_mines(dataList) {
+    const catdata = String(dataList.join('').replace(/\s|\r|\n/g,''));
+    const regexp = new RegExp(MINES_VALUE, 'g');
+    return (catdata.match(regexp) || []).length;
+  }
+  popData() {
+    let cellData = [];
+    this.header = '';
+    while (this.lines.length > 0) {
+      if (this.isHeader()) {
+        if (cellData.length == 0) {
+          // the 1st line must be a header
+          this.header = this.lines.shift();
+        } else {
+          // break at the 2nd met header
+          break;
+        }
+      } else {
+        cellData.push(this.lines.shift());
+      }
+      // next line
+    }
+    // size determined
+    this.size = this.boardSize(cellData);
+    // count mines
+    this.mines = this.count_mines(cellData);
+    // board name determined
+    const bdname = this.boardName();
+    // header updated by size and bdname
+    this.header = [...this.size, bdname].join(' ');
+    cellData = this.cat_and_split(cellData);
+    return this.boardData(bdname, this.header, cellData);
+  }
 }
 function fileChanged(input) {
   const reader = new FileReader(); // FileReader object
@@ -449,13 +552,31 @@ function fileChanged(input) {
   printConsole(`read ${fileName}`);
   reader.readAsText(fileNode); // reading file
 }
-function addFileLoadEventListener(reader, fileName) {
-  reader.addEventListener("load", function(){
+function readBoardFile(fileName) {
+    // 'this' is binded to reader
     const bdroot = new Board();
-    //console.log(fileName, this.result);
-    bdroot.append(fileName, parseBoardFile(this.result));
-    bdroot.load(fileName);
-  });
+    const fileData = this.result;
+    const bdfile = new boardFile(fileData, fileName);
+    while (bdfile.lines.length > 0) {
+      let boardData=bdfile.popData();
+      printConsole(`found ${boardData.name}`);
+      bdroot.push(boardData);
+    }
+    if (bdroot.nameList.length > 0) {
+      let bdName = bdroot.nameList.slice(-1).shift();
+      bdroot.load(bdName);
+      appendBoardSelector(bdroot);
+    }
+    // merge new boards to BDROOT
+    BDROOT.merge(bdroot);
+    //bdroot.append(fileName, this.result);
+    //bdroot.load(fileName);
+}
+function addFileLoadEventListener(reader, fileName) {
+  //console.log('addFileLoadEventListener', fileName, reader);
+  //bind the first reader is referenced as this on readBoardFile
+  const bindedHandler = readBoardFile.bind(reader, fileName);
+  reader.addEventListener('load', bindedHandler);
 }
 function addSelectEventListener() {
   const button = document.getElementById('mybtn');
@@ -464,7 +585,7 @@ function addSelectEventListener() {
     // const bdidx = bdsel.selectedIndex;
     const bdname = bdsel.value;
     // printConsole(`select ${bdname}`);
-    readSampleBoard(bdname);
+    BDROOT.load(bdname);
   });
 }
 function resetBoardForm() {
@@ -481,6 +602,30 @@ function addResetEventListener() {
     bdroot.reset();
     //console.log('resetting');
   });
+}
+// cell selection log download
+function addDownloadEventListener() {
+  const dlBtn = document.getElementById('mydownload');
+  dlBtn.addEventListener('click', function(){
+    const data = fetchDialogMsg();
+    const blob = new Blob([data], {type:'text/plain'});
+    const dllink = document.createElement('a');
+    let fname = 'select_cell.txt';
+    if (!BOARD_NAME.match(/unknown/) && (BOARD_NAME !== undefined)) {
+      fname = fname.replace(/cell/, BOARD_NAME);
+    }
+    dllink.download = fname;    
+    dllink.href = URL.createObjectURL(blob);
+    dllink.click();
+    //console.log('download', dllink);
+    URL.revokeObjectURL(dllink.href);
+    const statusBox = document.getElementById('mydownloadstatus');
+    statusBox.value = fname;
+  });
+}
+function fetchDialogMsg() {
+  const dialogBox = document.getElementById('mydialog');
+  return dialogBox.value;
 }
 function initializeBoard() {
   //reset score and visibility
@@ -535,7 +680,7 @@ function flagUpdate(task) {
 function startSelection(cellElemArray, index, event) {
   console.log('binded args', index, cellElemArray.length);
   const cell = new cellElem(index, cellElemArray);
-  cell.access('primary');
+  cell.access(['primary']);
 }
 function addCellEventListener() {
   const board = document.getElementById('myboard');
@@ -553,7 +698,7 @@ function addCellEventListener() {
       // get click position. upper left is 0 and start from 0,1,2,..IDX_MAX
       const tableIndex = cellElemArray.indexOf(this);
       const cell = new cellElem(tableIndex, cellElemArray);
-      cell.access('primary');
+      cell.access(['primary']);
     }, {once: true});
   }
 }
@@ -674,7 +819,7 @@ function foreachUntouchCells(task) {
             cellElemArray[i].addEventListener('click', function(){
               const tableIndex = cellElemArray.indexOf(this);
               const cell = new cellElem(tableIndex, cellElemArray);
-              cell.access('primary');
+              cell.access(['primary']);
             }, {once: true});
           }
           break;
@@ -741,13 +886,66 @@ class randomparam {
     return normalize;
   }
 }
-function createMines(rand, cellCount, minesCount) {
+function createSafeCells(size_x, size_y, mcount) {
+  const USE_ADJCELL_WIDTH_MIN = 6;
+  // MINES : UNTOUCH = 10 : 10
+  const USE_SAFECELL_MINE_RATIO_MIN = 1.0;
+  // MINES : UNTOUCH = 10 : 25
+  const USE_ADJCELL_MINE_RATIO_MIN = 2.5;
+  const xmax = size_x-1;
+  const ymax = size_y-1;
+  const cellSize = size_x * size_y;
+  const untouchCellMin1 = parseInt(mcount * USE_SAFECELL_MINE_RATIO_MIN);
+  const untouchCellMin2 = parseInt(mcount * USE_ADJCELL_MINE_RATIO_MIN);
+  let untouchCellSize = cellSize - mcount;
+  let safeCell = [];
+  let threshold = {
+    min: 0,
+    cur: untouchCellSize,
+    test_and_push: function(x,y) {
+      const index = size_x*y + x;
+      //console.log('untouchCellMin', this.min, 'untouchCellSize', this.cur, 'index', index);
+      if (this.cur > this.min) {
+        if (safeCell.indexOf(index) < 0) {
+          safeCell.push(index);
+          this.cur--;
+        }
+      }
+    }
+  }
+  threshold.min = untouchCellMin1;
+  for (let y=0; y < size_y; y+=ymax) {
+    for (let x=0; x < size_x; x+=xmax) {
+      threshold.test_and_push(x, y);
+    }
+  }
+  threshold.min = untouchCellMin2;
+  for (let y=0; y < size_y; y+=ymax) {
+    for (let x=0; x < size_x; x+=xmax) {
+      const x_idx = (size_x > USE_ADJCELL_WIDTH_MIN) ? pibotAdjacent(x, 0, xmax) : [x];
+      const y_idx = (size_y > USE_ADJCELL_WIDTH_MIN) ? pibotAdjacent(y, 0, ymax) : [y];
+      for (let i=0; i < x_idx.length; i++) {
+        for (let j=0; j < y_idx.length; j++) {
+          threshold.test_and_push(x_idx[i], y_idx[j]);
+        }
+      }
+    }
+  }
+  return safeCell;
+}
+function createMines(rand, cellCount, minesCount, safeCell) {
+  if (minesCount > cellCount) {
+    minesCount = cellCount;
+  }
   let mines = [];
   for (let i=0; i < minesCount; i++) {
     let value = 0;
     do {
+      while (mines.length > (cellCount - safeCell.length)) {
+        safeCell.pop();
+      } 
       value = parseInt(rand.next() * cellCount);
-    } while (mines.indexOf(value) >= 0);
+    } while ((mines.indexOf(value) >= 0) || (safeCell.indexOf(value) >= 0));
     mines.push(value);
   }
   //console.log('mines', mines);
@@ -758,7 +956,7 @@ function createCellElemArray(cellSize, mines) {
   for (let i=0; i < cellSize; i++) {
     let value = 0;
     if (mines.indexOf(i) >= 0) {
-      value = 9;
+      value = MINES_VALUE;
     }
     const node = new cellElemNode(value);
     cellElemArray.push(node);
@@ -769,33 +967,36 @@ function createCellElemArray(cellSize, mines) {
 // generate board. return 'boardName' 'dataList...'
 // distroy SIZE_X and SIZE_Y
 function generateBoard(size_x, size_y, minesCount, rand) {
+  // avoid mines to be put at 4-corner reagion
+  const USE_SAFE_ZONE = 1
   SIZE_X = size_x;
   SIZE_Y = size_y;
   // skip the first rand to generate rand.iterate
   const discard = rand.next();
   const boardId = rand.iterate;
   const cellSize = size_x * size_y;
-  const mines = createMines(rand, cellSize, minesCount);
+  const safeCell = USE_SAFE_ZONE ? createSafeCells(size_x, size_y, minesCount) : [];
+  //console.log('safeCell', safeCell);
+  const mines = createMines(rand, cellSize, minesCount, safeCell);
+  //console.log('mines', mines);
   const cellElemArray = createCellElemArray(cellSize, mines);
-  const boardName = `board_${size_x}x${size_y}_${minesCount}_${boardId}`;
-  let data = [];
-  data[0] = `${size_x} ${size_y} ${boardName}`;
-  data[1] = '';
+  cellData = '';
   for (let i=0; i < cellElemArray.length; i++) {
     const cell = new cellElem(i, cellElemArray);
     if (!cell.isBomb()) {
-      let mcount = pivotCell(i, cellElemArray, cell, 'count_mines');
+      let mcount = pivotCell(i, cellElemArray, cell, 'count_mines', undefined);
       //console.log('pivotCell', i, mcount);
     }
     cell.update();
-    data[1] += cell.value;
+    cellData += cell.value;
+    // append newline at the tail of size_x
     if (((i+1) % size_x)==0) {
-      data[1] += '\n';
+      cellData += '\n';
     }
   }
-  //console.log(data);
-  //console.log(cellElemArray);
-  let boardData = [boardName, data];
+  const bdfile = new boardFile(cellData, 'board', boardId);
+  const boardData=bdfile.popData();
   //console.log(boardData);
-  return [...boardData];
+  //return [...boardData];
+  return boardData;
 }

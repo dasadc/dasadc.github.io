@@ -116,7 +116,10 @@
       let VISIBILITY = 0;
       let SCORE = 0;
       let BOARD_NAME = '<board_name_unknown>';
+      let BOARD_HEADER = '<board_header_unknown>';      
       let FLAG = 0;
+      let BDROOT = new Board();
+      let MINES_VALUE = 9;
     </script>
   </head>
   <body>
@@ -138,29 +141,38 @@
         <label class="box">ボード初期化：</label>
         <button id="myreset" type="reset" class="box">リセット</button>
         <label class="box">盤面データ表示切替：</label>
-        <button type="button" id="mytoggle" class="box" onclick="foreachUntouchCells('toggleVisibility');">ON/OFF</button>
+        <button type="button" id="mytoggle" class="box" onclick="foreachUntouchCells('toggleVisibility')">ON/OFF</button>
       </div>
       <label class="box">盤面のセル (X,Y) は横方向 X、縦方向 Y、左上が (0,0) となります</label>
       <form id="myform">
         <div class="hdiv">
           <label class="box">旗を立てる：</label>
-          <button type="button" id="myflag" class="box" onclick="flagUpdate('toggle');">ON/OFF</button>
+          <button type="button" id="myflag" class="box" onclick="flagUpdate('toggle')">ON/OFF</button>
           <output id="mystatus" class="box">off</output>
           <label class="box">残りセル数：</label>
           <output id="myremain" class="box">remaining cells...</output>
         </div>
         <div class="hdiv">
+          <label class="box">セル選択ログ：</label>
+          <button type="button" id="mydownload" class="box">ダウンロード</button>
+          <output id="mydownloadstatus" class="box">none</output>
+          <!--
+          <a id="mydownload" class="box" download="cell_select.txt">ダウンロード</a>
+          -->
+          
+        </div>
+        <div class="hdiv">
           <table class="inlinebox">
             <tr><td class="smallbox">セル選択ログ</td></tr>
             <tr><td>
-            <textarea id="mydialog" class="box scrollbox" placeholder="touch cell (x,y)"></textarea>
+            <textarea id="mydialog" class="box scrollbox" placeholder="touch cell (x,y)" wrap="off"></textarea>
             </td></tr>
             <tr><td class="smallbox">スコア計算ログ</td></tr>
             <tr><td>
             <textarea id="myscore" class="box scrollbox" placeholder="score count"></textarea>
             </td></tr>
           </table>
-            <table id="myboard" class="msboard inlinebox"></table>
+          <table id="myboard" class="msboard inlinebox"></table>
         </div>
         <div class="hdiv">
           <label class="box">セル選択終了：</label>
@@ -169,12 +181,13 @@
           <output id="myresult" class="box">result...</output>
         </div>
       </form>
-      <div class="right smallbox">version 2025/3/23</div>
+      <div class="right smallbox">version 2025/4/6</div>
     </div>
     <script>
       createBoardSelector();
       addSelectEventListener();
       addResetEventListener();
+      addDownloadEventListener();
     </script>
   </body>
 </html>
