@@ -608,19 +608,26 @@ function addDownloadEventListener() {
   const dlBtn = document.getElementById('mydownload');
   dlBtn.addEventListener('click', function(){
     const data = fetchDialogMsg();
-    const blob = new Blob([data], {type:'text/plain'});
-    const dllink = document.createElement('a');
-    let fname = 'select_cell.txt';
-    if (!BOARD_NAME.match(/unknown/) && (BOARD_NAME !== undefined)) {
-      fname = fname.replace(/cell/, BOARD_NAME);
-    }
-    dllink.download = fname;    
-    dllink.href = URL.createObjectURL(blob);
-    dllink.click();
-    //console.log('download', dllink);
-    //URL.revokeObjectURL(dllink.href);
     const statusBox = document.getElementById('mydownloadstatus');
-    statusBox.value = fname;
+    if (data == '') {
+      statusBox.value = 'log is empty';
+    } else {
+      const blob = new Blob([data], {type:'text/plain'});
+      const dllink = document.createElement('a');
+      let fname = 'select_cell.txt';
+      if (!BOARD_NAME.match(/unknown/) && (BOARD_NAME !== undefined)) {
+        fname = fname.replace(/cell/, BOARD_NAME);
+      }
+      dllink.download = fname;    
+      dllink.href = URL.createObjectURL(blob);
+      dllink.click();
+      //console.log('download', dllink);
+      // Android Chrome is error when empty log. time out avoids the error
+      setTimeout(() => {
+		URL.revokeObjectURL(dllink.href)
+	  }, 5000);
+      statusBox.value = fname;
+    }
   });
 }
 function fetchDialogMsg() {
