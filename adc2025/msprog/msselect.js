@@ -618,7 +618,7 @@ function addDownloadEventListener() {
     dllink.href = URL.createObjectURL(blob);
     dllink.click();
     //console.log('download', dllink);
-    URL.revokeObjectURL(dllink.href);
+    //URL.revokeObjectURL(dllink.href);
     const statusBox = document.getElementById('mydownloadstatus');
     statusBox.value = fname;
   });
