@@ -5,6 +5,7 @@ class cellElemNode {
     this.innerHTML = value;
   }
 }
+// HTML table cell element
 class cellElem {
   constructor(index, elemList) {
     // array pointer
@@ -109,14 +110,14 @@ function appendScrollBox(box, msg) {
 function printConsole(msg) {
   const consoleBox = document.getElementById('myconsole');
   //scroll before print
-  msg += "\n";
+  msg += '\n';
   appendScrollBox(consoleBox, msg);
 }
 // print to dialog box in html
 function printDialog(msg) {
   const dialogBox = document.getElementById('mydialog');
   //scroll before print
-  msg += "\n";
+  msg += '\n';
   appendScrollBox(dialogBox, msg);
 }
 // print to dialog box in html
@@ -130,7 +131,7 @@ function printScore(cell, incr, type) {
       msg += ` (${x},${y})`;
     }
     //scroll before print
-    msg += "\n";
+    msg += '\n';
     appendScrollBox(scoreBox, msg); 
   }
 }
@@ -143,6 +144,7 @@ function printResult(score) {
     msg += ' => count as 0';
     finalScore = 0;
   }
+  msg += ` (${BOARD_NAME})`
   resultBox.value = msg;  
   // print to console
   printConsole(`score ${finalScore} ${BOARD_NAME}`);
@@ -158,7 +160,7 @@ function printRemain(msg) {
   const remainBox = document.getElementById('myremain');
   remainBox.value = msg;  
   // print to console
-  printConsole(`remaining ${msg}`);
+  //printConsole(`remaining ${msg}`);
 }
 function countScore(cell, type) {
   let score = cell.score();
@@ -298,19 +300,44 @@ class Board {
     this.dataList = [];
     this.size_x = 0;
     this.size_y = 0;
+    this.boardData = undefined;
   }
   append(name, data) {
     this.nameList.push(name);
     this.dataList.push(data);
-    //console.log('appended name', name);
-    //console.log('appended data', data);
+  }
+  append_top(name, data) {
+    this.nameList.unshift(name);
+    this.dataList.unshift(data);
   }
   push(boardData) {
+    if (boardData !== undefined) {
+      this.nameList.push(boardData.name);
+      this.dataList.push(boardData.data);
+    }
+  }
+  push_tail(boardData) {
+    if (boardData === undefined) {
+      boardData = this.boardData;
+    }
     this.nameList.push(boardData.name);
     this.dataList.push(boardData.data);
+    return this;
+  }
+  push_top(boardData) {
+    if (boardData === undefined) {
+      boardData = this.boardData;
+    }
+    this.nameList.unshift(boardData.name);
+    this.dataList.unshift(boardData.data);
+    return this;
+  }
+  idx(name) {
+    const idx = this.nameList.indexOf(name);
+    return idx;
   }
   fetch(name) {
-    const idx = this.nameList.indexOf(name);
+    const idx = this.idx(name);
     //console.log('fetch', name, idx, this.dataList[idx]);
     return (idx < 0) ? undefined : this.dataList[idx];
   }
@@ -318,6 +345,19 @@ class Board {
     while (newbd.nameList.length >0) {
       this.append(newbd.nameList.shift(),newbd.dataList.shift());
     }
+  }
+  merge_top(newbd) {
+    while (newbd.nameList.length >0) {
+      this.append_top(newbd.nameList.shift(),newbd.dataList.shift());
+    }
+  }
+  last_name() {
+    const bdName = this.nameList.slice(-1).shift();
+    return bdName;
+  }
+  first_name() {
+    const bdName = this.nameList[0];
+    return bdName;
   }
   check_lines(lines) {
     for (let i = 0; i < this.size_y; i++) {
@@ -332,8 +372,14 @@ class Board {
     }
     if (lines.length != this.size_y) {
       printConsole(`#ER y-size ${lines.length} not match ${this.size_y}`);
-      console.log('lines is', lines);
+      //console.log('lines is', lines);
     }
+  }
+  get_data(name) {
+    const data = this.fetch(name);
+    const bdfile = new boardFile(data.join('\n'));
+    const boardData=bdfile.popData();
+    return boardData.data;
   }
   get_lines(name) {
     const data = this.fetch(name);
@@ -348,6 +394,17 @@ class Board {
     const lines = boardData.data.slice(-1).shift().split(/\r\n|\n/);
     this.check_lines(lines);
     return [...lines];
+  }
+  new_board(x, y, m, id) {
+    const rand = BOARD_RAND;
+    if (id === undefined) {
+      rand.use_last_record();
+    } else {
+      rand.seek(id);
+      //console.log('new board id', id, 'found rand iterate (should be id-1)', rand.iterate);
+    }
+    this.boardData = generateBoardData(x, y, m, rand);
+    return this;
   }
   load(name) {
     const lines = this.get_lines(name);
@@ -371,7 +428,6 @@ class Board {
     printDialog(BOARD_HEADER);
   }
 }
-
 function removeEmptyItems(array) {
   let newarray = [];
   for (let i = 0; i < array.length; i++) {
@@ -382,62 +438,83 @@ function removeEmptyItems(array) {
   }
   return [...newarray];
 }
-
 function createSampleBoardSet() {
   const bdroot = new Board();
-  const rand = new randomparam();
-  //bdroot.append('board-1', ['3 3','111191111']);
-  //bdroot.append('board-2', ['111111','191191','111111','111111','191191','111111']);
-  //bdroot.append('board-3', ['10 10 board-10x10-3', '0001110000 0112911110 1292111921 1921112129 1110191011 0112221000 0193910000 0119211110 0011101910 0000001110']);
-  //bdroot.append(...generateBoard(4, 4, 3, rand));
-  bdroot.push(generateBoard(4, 4, 2, rand));
-  bdroot.push(generateBoard(4, 4, 4, rand));
-  bdroot.push(generateBoard(5, 5, 3, rand));
-  bdroot.push(generateBoard(5, 5, 6, rand));
-  bdroot.push(generateBoard(7, 7, 6, rand));
-  bdroot.push(generateBoard(7, 7, 12, rand));
-  bdroot.push(generateBoard(8, 8, 8, rand));
-  bdroot.push(generateBoard(8, 8, 16, rand));
-  bdroot.push(generateBoard(10, 10, 12, rand));
-  bdroot.push(generateBoard(10, 10, 25, rand));
-  bdroot.push(generateBoard(13, 13, 21, rand));
-  bdroot.push(generateBoard(13, 13, 42, rand));
-  bdroot.push(generateBoard(16, 16, 32, rand));
-  bdroot.push(generateBoard(16, 16, 64, rand));
-  bdroot.push(generateBoard(10, 20, 30, rand));
-  bdroot.push(generateBoard(10, 20, 40, rand));
-  bdroot.push(generateBoard(10, 20, 50, rand));
-  bdroot.push(generateBoard(10, 20, 60, rand));
-  bdroot.push(generateBoard(10, 20, 70, rand));
+  bdroot.new_board(4, 4, 2).push_tail();
+  bdroot.new_board(4, 4, 4).push_tail();
+  bdroot.new_board(5, 5, 3).push_tail();
+  bdroot.new_board(5, 5, 6).push_tail();
+  bdroot.new_board(7, 7, 6).push_tail();
+  bdroot.new_board(7, 7, 12).push_tail();
+  bdroot.new_board(8, 8, 8).push_tail();
+  bdroot.new_board(8, 8, 16).push_tail();
+  bdroot.new_board(9, 9, 10).push_tail();
+  bdroot.new_board(9, 9, 20).push_tail();
+  bdroot.new_board(9, 12, 13).push_tail();
+  bdroot.new_board(9, 12, 26).push_tail();
+  bdroot.new_board(9, 15, 16).push_tail();
+  bdroot.new_board(9, 15, 33).push_tail();
+  bdroot.new_board(10, 10, 12).push_tail();
+  bdroot.new_board(10, 10, 25).push_tail();
+  bdroot.new_board(13, 13, 21).push_tail();
+  bdroot.new_board(13, 13, 42).push_tail();
+  bdroot.new_board(16, 16, 32).push_tail();
+  bdroot.new_board(16, 16, 64).push_tail();
+  bdroot.new_board(17, 17, 36).push_tail();
+  bdroot.new_board(17, 17, 72).push_tail();
+  bdroot.new_board(10, 20, 30).push_tail();
+  bdroot.new_board(10, 20, 40).push_tail();
+  bdroot.new_board(10, 20, 50).push_tail();
+  bdroot.new_board(10, 20, 60).push_tail();
+  bdroot.new_board(10, 20, 70).push_tail();
   return bdroot;
 }
-
-function createBoardSelector() {
-  BDROOT = createSampleBoardSet();
-  const bdsel = document.getElementById('myselect');
-  // delete previous options of selector
-  const options = bdsel.options;
-  while (options.length > 0) options.remove(0);
+function updateSampleBoardSet() {
+  const bdroot = new Board();
+  const bdfile = new boardFile('','','');
+  // read all current BDROOT boards 
   for (let bdn = 0; bdn < BDROOT.nameList.length; bdn++) {
-    let newopt = document.createElement('option');
-    newopt.innerHTML = BDROOT.nameList[bdn];
-    bdsel.appendChild(newopt);
+    const bdname = BDROOT.nameList[bdn];
+    //console.log('current bdn', bdn, bdname);
+    const bdprop = bdfile.boardProperty(bdname);
+    if (bdprop === undefined) {
+      printConsole(`skip ${bdname}`);
+    } else {
+      bdroot.new_board(bdprop.x, bdprop.y, bdprop.mines).push_tail();
+    }
   }
-  /*
-  for (let opt = 0; opt < options.length; opt++) {
-    console.log('bdsel opt', opt, options[opt].value);
-  }
-  */
+  return bdroot;
 }
-
-function appendBoardSelector(bdroot) {
-  const bdsel = document.getElementById('myselect');
-  // append selector
-  for (let bdn = 0; bdn < bdroot.nameList.length; bdn++) {
-    let newopt = document.createElement('option');
-    newopt.innerHTML = bdroot.nameList[bdn];
-    bdsel.appendChild(newopt);
+class BoardSelector {
+  constructor() {
+    this.body = document.getElementById('myselect');
   }
+  clean() {
+    const options = this.body.options;
+    // remove all current selector contents
+    while (options.length > 0) options.remove(0);
+    return this;
+  }
+  import(bdroot) {
+    for (let bdn = 0; bdn < bdroot.nameList.length; bdn++) {
+      let newopt = document.createElement('option');
+      newopt.innerHTML = bdroot.nameList[bdn];
+      this.body.appendChild(newopt);
+    }
+    return this;
+  }
+}
+function createBoardSelector() {
+  if (BDROOT.nameList.length > 0) {
+    BDROOT = updateSampleBoardSet();
+  } else {
+    BDROOT = createSampleBoardSet();
+  }
+  updateBoardSelector();
+}
+function updateBoardSelector() {
+  const bdsel = new BoardSelector();
+  bdsel.clean().import(BDROOT);
 }
 class boardFile {
   constructor(fileData, fileName, boardId) {
@@ -469,6 +546,22 @@ class boardFile {
       fname.push(this.fnidx++);
     }
     return fname.join('_');;
+  }
+  boardProperty(bdname) {
+    // board_7x7_12_31
+    let propList = bdname.split(/[_x]/);
+    if (propList.length >= 5) {
+      const boardProp = {
+        name: propList.shift(),
+        x: propList.shift(),
+        y: propList.shift(),
+        mines: propList.shift(),
+        id: propList.shift()
+      }
+      return boardProp;
+    } else {
+      return undefined;
+    }
   }
   boardSize(cellData) {
     //console.log('cellData', cellData);
@@ -538,55 +631,211 @@ class boardFile {
     return this.boardData(bdname, this.header, cellData);
   }
 }
-function fileChanged(input) {
+function fileChanged(input, what) {
   const reader = new FileReader(); // FileReader object
   //console.log(input);
   const fileNode = input.files[0];
-  const fileName = fileNode.name;
-  addFileLoadEventListener(reader, fileName);
-  /*
-  for (let i = 0; i < input.files.length; i++) {
-    console.log(input.files[i]);
+  if (fileNode !== undefined) {
+    // reading file
+    const fileName = fileNode.name;
+    addFileLoadEventListener(reader, fileName, what);
+    reader.readAsText(fileNode);
+    printConsole(`read ${fileName}`);
   }
-  */
-  printConsole(`read ${fileName}`);
-  reader.readAsText(fileNode); // reading file
 }
 function readBoardFile(fileName) {
-    // 'this' is binded to reader
-    const bdroot = new Board();
-    const fileData = this.result;
-    const bdfile = new boardFile(fileData, fileName);
-    while (bdfile.lines.length > 0) {
-      let boardData=bdfile.popData();
-      printConsole(`found ${boardData.name}`);
-      bdroot.push(boardData);
+  // 'this' is binded to reader
+  const bdroot = new Board();
+  const fileData = this.result;
+  const bdfile = new boardFile(fileData, fileName);
+  // board file may have many boards
+  let boardFound = false;
+  while (bdfile.lines.length > 0) {
+    let boardData=bdfile.popData();
+    printConsole(`found ${boardData.name}`);
+    bdroot.push(boardData);
+    boardFound = true;
+  }
+  // choose the first board described in given board file
+  if (boardFound) {
+    loadfirstBoardandMergeRoot(bdroot);
+  }
+}
+class cellListFile extends boardFile {
+  isHeader() {
+    // header is <x_size> <y_size> <board_name>
+    return (this.lines[0].match(/^(\d+)[ ]+(\d+)[ ]+(\w+)/) == null) ? 0 : 1;
+  }
+  popData() {
+    let cellData = [];
+    this.header = '';
+    while (this.lines.length > 0) {
+      if (this.isHeader()) {
+        if (cellData.length == 0) {
+          // the 1st line must be a header
+          this.header = this.lines.shift();
+        } else {
+          // break at the 2nd met header
+          break;
+        }
+      } else {
+        cellData.push(this.lines.shift());
+      }
+      // next line
     }
-    if (bdroot.nameList.length > 0) {
-      let bdName = bdroot.nameList.slice(-1).shift();
-      bdroot.load(bdName);
-      appendBoardSelector(bdroot);
+    return cellData;
+  }
+}
+class cellList {
+  constructor(lines) {
+    this.locList = [];
+    while (lines.length > 0) {
+      const eachline = lines.shift();
+      const itemList = eachline.split(/[ ]+/);
+      //console.log('itemList', itemList);
+      if (itemList.length >= 2) {
+        const loc = {x:Number(itemList[0]), y:Number(itemList[1])}
+        this.locList.push(loc);
+      } else {
+        printConsole(`#ER cell list format error ${eachline}`);
+        // break and clear locList
+        this.locList = undefined;
+        break;
+      }
     }
+  }
+  continue_or_finish() {
+    const RDCONFIG = getReadListConfig();
+    if (/finish/.test(RDCONFIG)) {
+      finishSelection();
+      return false;
+    } else {
+      return true;
+    }
+  }
+  startSelection() {
+    const board = document.getElementById('myboard');
+    const cellElemLists = board.getElementsByTagName('td');
+    const cellElemArray = [...cellElemLists];
+    for (let i=0; i < this.locList.length; i++) {
+      const index = SIZE_X*this.locList[i].y + this.locList[i].x;
+      //console.log("index", index, this.locList[i]);
+      startSelection(cellElemArray, index);
+    }
+  }
+}
+function readCellListFile(fileName) {
+  // 'this' is binded to reader
+  const fileData = this.result;
+  const clfile = new cellListFile(fileData, fileName);
+  while (clfile.lines.length > 0) {
+    const cldata = new cellList(clfile.popData());
+    const bdname = clfile.boardName();
+    if (cldata.locList === undefined) {
+      printConsole(`#ER failed to read ${bdname} cell list, aborted`);
+      return false;
+    }
+    printConsole(`found ${bdname} cell list`);
+    if (BDROOT.idx(bdname) < 0) {
+      const bdfile = new boardFile('','','');
+      const bdprop = bdfile.boardProperty(bdname);
+      BDROOT.new_board(bdprop.x, bdprop.y, bdprop.mines, bdprop.id).push_tail();
+      updateBoardSelector();
+    }
+    if (BDROOT.idx(bdname) >= 0) {
+      BDROOT.load(bdname);
+      console.log('cell list', cldata.locList);
+      cldata.startSelection();
+      if (cldata.continue_or_finish()) {
+        // skip after 2nd board when continue mode selected
+        printConsole(`break after reading ${bdname} cell list`);
+        break; 
+      }
+    } else {
+      printConsole(`#ER no board data found ${bdname}, aborted`);
+      return false;
+    }
+  }
+}
+function loadLastBoardandMergeRoot(bdroot) {
+  if (bdroot.nameList.length > 0) {
+    const bdName = bdroot.last_name();
+    bdroot.load(bdName);
     // merge new boards to BDROOT
     BDROOT.merge(bdroot);
-    //bdroot.append(fileName, this.result);
-    //bdroot.load(fileName);
+    updateBoardSelector();
+  }
 }
-function addFileLoadEventListener(reader, fileName) {
+function loadfirstBoardandMergeRoot(bdroot) {
+  if (bdroot.nameList.length > 0) {
+    const bdName = bdroot.first_name();
+    bdroot.load(bdName);
+    // merge new boards to BDROOT
+    BDROOT.merge_top(bdroot);
+    updateBoardSelector();
+  }
+}
+function addFileLoadEventListener(reader, fileName, what) {
   //console.log('addFileLoadEventListener', fileName, reader);
-  //bind the first reader is referenced as this on readBoardFile
-  const bindedHandler = readBoardFile.bind(reader, fileName);
+  //bind the first reader is referenced as this on calling function
+  let bindedHandler = undefined;
+  switch (what) {
+    case 'board': bindedHandler = readBoardFile.bind(reader, fileName); break;
+    case 'cellList': bindedHandler = readCellListFile.bind(reader, fileName); break;
+  }
   reader.addEventListener('load', bindedHandler);
 }
+function createCustomBoard() {
+  const bdroot = new Board();
+  const cstmx = document.getElementById('mycstmx');
+  const cstmy = document.getElementById('mycstmy');
+  const cstmm = document.getElementById('mycstmmines');
+  if ((cstmx.value != '') && (cstmy.value != '') && (cstmm.value != '')) {
+    bdroot.new_board(cstmx.value, cstmy.value, cstmm.value).push_top();
+    //console.log('x', cstmx.value, 'y', cstmy.value, 'm', cstmm.value);
+    const bdName = bdroot.first_name();
+    printConsole(`create ${bdName}`);
+    // choose the first board described in given board file
+    loadfirstBoardandMergeRoot(bdroot);
+  }
+}
 function addSelectEventListener() {
-  const button = document.getElementById('mybtn');
   const bdsel = document.getElementById('myselect');
-  button.addEventListener('click', function(){
-    // const bdidx = bdsel.selectedIndex;
+  const loadbtn = document.getElementById('myselectload');
+  const configbtn = document.getElementById('myselectreconfig');
+  const cstmbtn = document.getElementById('mycstmload');
+  
+  // board selection from select tag
+  loadbtn.addEventListener('click', function(){
     const bdname = bdsel.value;
-    // printConsole(`select ${bdname}`);
+    printConsole(`select ${bdname}`);
     BDROOT.load(bdname);
   });
+  // board selection from safe cell configuration
+  configbtn.addEventListener('click', function(){
+    printConsole('update board selector');
+    createBoardSelector();
+    if (BDROOT.nameList.length > 0) {
+      const bdName = BDROOT.first_name();
+      BDROOT.load(bdName);
+    }
+  });
+  // board selection from custom size
+  cstmbtn.addEventListener('click', function(){
+    createCustomBoard();
+  });
+}
+function getBoardConfig() {
+  // CSS selector = #<id_name>
+  const bdconfig = document.querySelector('#mybdconfig').bdconfig.value;
+  //console.log('bdconfig', bdconfig);
+  return bdconfig;
+}
+function getReadListConfig() {
+  // CSS selector = #<id_name>
+  const rdconfig = document.querySelector('#mybdconfig').readlist.value;
+  console.log('rdconfig', rdconfig);
+  return rdconfig;
 }
 function resetBoardForm() {
   const resetForm = document.getElementById('myform');
@@ -603,36 +852,95 @@ function addResetEventListener() {
     //console.log('resetting');
   });
 }
-// cell selection log download
-function addDownloadEventListener() {
-  const dlBtn = document.getElementById('mydownload');
-  dlBtn.addEventListener('click', function(){
-    const data = fetchDialogMsg();
-    const statusBox = document.getElementById('mydownloadstatus');
-    if (data == '') {
-      statusBox.value = 'log is empty';
-    } else {
-      const blob = new Blob([data], {type:'text/plain'});
-      const dllink = document.createElement('a');
-      let fname = 'select_cell.txt';
-      if (!BOARD_NAME.match(/unknown/) && (BOARD_NAME !== undefined)) {
-        fname = fname.replace(/cell/, BOARD_NAME);
-      }
-      dllink.download = fname;    
-      dllink.href = URL.createObjectURL(blob);
-      dllink.click();
-      //console.log('download', dllink);
-      // Android Chrome is error when empty log. time out avoids the error
-      setTimeout(() => {
-		URL.revokeObjectURL(dllink.href)
-	  }, 5000);
-      statusBox.value = fname;
-    }
-  });
+function downloadText(text, statusBox, fname) {
+  if (text == '') {
+    statusBox.value = 'empty';
+  } else {
+    const blob = new Blob([text], {type:'text/plain'});
+    const dllink = document.createElement('a');
+    dllink.download = fname;    
+    dllink.href = URL.createObjectURL(blob);
+    dllink.click();
+    // Android Chrome is error when empty log. time out avoids the error
+    setTimeout(() => {
+	URL.revokeObjectURL(dllink.href)
+	}, 5000);
+    statusBox.value = fname;
+  }
+}
+function findBoardName() {
+  return (!BOARD_NAME.match(/unknown/) && (BOARD_NAME !== undefined));
+}
+function fetchBoardData() {
+  const lines = (findBoardName()) ? BDROOT.get_data(BOARD_NAME) : ['<no_board_data>'];
+  return (lines.join('\n') + '\n');
 }
 function fetchDialogMsg() {
   const dialogBox = document.getElementById('mydialog');
-  return dialogBox.value;
+  const msg = (dialogBox.value == '') ? '<no_dialog_data>' : dialogBox.value;
+  return (msg + '\n');
+}
+function fetchSummary() {
+  const table = document.getElementById('mysummary');
+  const cells = table.querySelectorAll('td');
+  let msg = (cells.length == 0) ? '<no_summary_data>' : '';
+  for (let row of table.rows) {
+    let line = [];
+    for(let cell of row.cells){
+      console.log(cell.innerText);
+      line.push(cell.innerText);
+    }
+    msg += line.join(',');
+    msg += '\n';
+  }
+  return msg
+}
+function downloadBoard(statusBox, event) {
+  const text = fetchBoardData();
+  //console.log('text', text);
+  const bdname = (findBoardName()) ? BOARD_NAME : 'board';
+  const fname = `${bdname}.txt`
+  downloadText(text, statusBox, fname);
+}
+function downloadDialog(statusBox, event) {
+  const text = fetchDialogMsg();
+  //console.log('text', text);
+  const bdname = (findBoardName()) ? BOARD_NAME : 'cell';
+  const fname = `select_${bdname}.txt`
+  downloadText(text, statusBox, fname);
+}
+function downloadSummary(statusBox, event) {
+  const text = fetchSummary();
+  //console.log('text', text);
+  const fname = `score_summary.csv`
+  downloadText(text, statusBox, fname);
+}
+// cell selection log download
+function addDownloadEventListener() {
+  const dlBtn1 = document.getElementById('mydownloadbd');
+  const dlBtn2 = document.getElementById('mydownloadlog');
+  const dlBtn3 = document.getElementById('mydownloadsummary');
+  const statusBox1 = document.getElementById('mydownloadbdstatus');
+  const statusBox2 = document.getElementById('mydownloadlogstatus');
+  const statusBox3 = document.getElementById('mydownloadsummarystatus');
+  const bindedHandler1 = downloadBoard.bind(dlBtn1, statusBox1);
+  const bindedHandler2 = downloadDialog.bind(dlBtn2, statusBox2);
+  const bindedHandler3 = downloadSummary.bind(dlBtn3, statusBox3);
+  dlBtn1.addEventListener('click', bindedHandler1);
+  dlBtn2.addEventListener('click', bindedHandler2);
+  dlBtn3.addEventListener('click', bindedHandler3);
+}
+function addUploadEventListener() {
+  const ulBtn = document.getElementById('myupload');
+  const listInput = document.getElementById('mylist');
+  ulBtn.addEventListener('click', function(){
+    listInput.click();
+  });
+  listInput.addEventListener('change', function(){
+    fileChanged(this, 'cellList');
+    // remove value to trigger event when the same file reading
+    listInput.value = '';
+  });
 }
 function initializeBoard() {
   //reset score and visibility
@@ -685,7 +993,7 @@ function flagUpdate(task) {
   printStatus();
 }
 function startSelection(cellElemArray, index, event) {
-  console.log('binded args', index, cellElemArray.length);
+  //console.log('binded args', index, cellElemArray.length);
   const cell = new cellElem(index, cellElemArray);
   cell.access(['primary']);
 }
@@ -842,29 +1150,84 @@ function foreachUntouchCells(task) {
       break;
   }
 }
+class SummaryTable {
+  constructor() {
+    this.body = document.getElementById('mysummary');
+    if (this.body.rows.length == 0) {
+      this.title();
+    }
+    this.total = 0;
+  }
+  clean() {
+    // delete previous table row
+    while (this.body.rows.length > 0) this.body.deleteRow(0);
+    return this;
+  }
+  title() {
+    this.append(['board name', 'score', 'total']);
+  }
+  append(items) {
+    const tline = document.createElement('tr');
+    const ttag = (items[2] == 'total') ? 'th' : 'td';
+    for (let i = 0; i < items.length; i++) {
+      const tdata = document.createElement(ttag);
+      const align = (i==0) ? 'left' : 'right';
+      tdata.innerHTML = items[i];
+      tdata.className = 'mssummary ' + align;
+      tline.appendChild(tdata);
+    }
+    this.body.appendChild(tline);
+    return this;
+  }
+  put(board_name, score) {
+    score = Number(score);
+    const scoreStr = (score < 0) ? `(${score}) 0` : score;
+    if (score > 0) {
+      this.total += score;      
+    }
+    const totalStr = this.total;
+    const items = [board_name, scoreStr, totalStr];
+    this.append(items);
+    return this;
+  }
+}
 function finishSelection() {
-  console.log('finish score is', SCORE);
+  //console.log('finish score is', SCORE);
   foreachUntouchCells('countPenalty');
   foreachUntouchCells('closure');
   printResult(SCORE);
   // clear board event listener
   removeEventListener();
   printConsole('selection finished');
+  // create summary table
+  if (SUMMARY === undefined) {
+    SUMMARY = new SummaryTable();
+  }
+  SUMMARY.put(BOARD_NAME, SCORE);
 }
 function addfinishEventListener() {
   const button = document.getElementById('myfinish');
   button.addEventListener('click', finishSelection, {once: true});  
 }
-
 class randomparam {
   constructor() {
+    /*
     this.a = 373;
     this.b = 1779;
     this.m = 52397;
     this.seed = [3456];
+    */
+    // these are prime number of YYYYMMDD
+    this.a = 20250101;
+    this.b = 20250413;
+    this.m = 20250809;
+    this.seed = [20251229];    
     this.bp = 0;
     this.value = this.seed[0];
     this.iterate = 0;
+    this.hist = [];
+    // record the first data set
+    this.record();
   }
   update(newValue) {
     let loop = 0;
@@ -890,59 +1253,225 @@ class randomparam {
     this.iterate++;
     let normalize = this.value / this.m;
     //console.log('random value', this.value, 'iterate', this.iterate);
+    if (this.iterate % 100 == 0) {
+      // record from the first rand whose this.iterate is 1
+      this.record();
+    }
     return normalize;
+  }
+  record() {
+    // record larger internal data than hist
+    if ((this.hist.length == 0) || (this.hist[0].iterate < this.iterate)) {
+      const rd = {a:this.a, b:this.b, m:this.m, seed:[...this.seed], bp:this.bp, value:this.value, iterate:this.iterate}
+      this.hist.unshift(rd);
+      //console.log('record (',this.hist.length,')', this.hist[0]);
+    }
+  }
+  use_last_record() {
+    if ((this.hist.length > 0) && (this.hist[0].iterate > this.iterate)) {
+      this.use_record(0);
+    }
+    return this;
+  }
+  use_nearest_record(iterate) {
+    //console.log('use nearest iterate', iterate, 'hist top', this.hist[0].iterate, 'current iterate', this.iterate);
+    if ((this.hist.length > 0) && (this.hist[0].iterate >= iterate)) {
+      const idnear = this.hist.findIndex(function(rd){
+        //console.log('seek iterate', iterate, 'hist iterate', rd.iterate);
+        return rd.iterate <= iterate;
+      });
+      if (idnear >= 0) {
+        this.use_record(idnear);
+      }
+      //console.log('idnear', idnear, 'hist length', this.hist.length);
+    }
+    return this;
+  }
+  use_record(histId) {
+    if (this.hist.length > 0) {
+      const rd = this.hist[histId];
+      //console.log('assign record', histId, rd);
+      Object.assign(this, rd);
+    }
+    return this;
+  }
+  seek(iterate) {
+    // generateBoardData discards the first rand
+    // seek (iterate -1)
+    //console.log('seek hist', iterate, 'hist top', this.hist[0].iterate);
+    // record current date set when rewinding iterate
+    if ((this.hist.length > 0) && (this.hist[0].iterate > iterate)) {
+      this.record();
+    }
+    // find iterate -1
+    if (iterate > 0) {
+      iterate--;
+    }
+    this.use_nearest_record(iterate);
+    // stop when equivalent iterate
+    while (this.iterate < iterate) {
+      this.next();
+    }
+    return this;
+  }
+}
+// check randomparam distribution
+// checkRandDist(100000, 10);
+function checkRandDist(loop, binSize) {
+  const LOOP_MAX = 1.0e+6;
+  const rand = BOARD_RAND;
+  let bin = [];
+  for (let i=0; i < binSize; i++) {
+    bin[i] = 0;
+  }
+  if (loop > LOOP_MAX) {
+    let choise = confirm(`loop ${loop} should be limited to ${LOOP_MAX} for browser performance`);
+    if (!choise) {
+      return false;
+    }
+  }
+  for (let i=0; i < loop; i++) {
+    const nomval = rand.next();
+    const slice = parseInt(nomval * binSize);
+    //console.log('nomval', nomval);
+    bin[slice]++;
+  }
+  for (let i=0; i < binSize; i++) {
+    console.log('%d %d %f', i, bin[i], parseInt(bin[i]/loop*100*100)/100);
+  }
+  return true;
+}
+function compNum(a,b) {return (a-b);}
+class safeZone {
+  constructor(size_x, size_y, mcount) {
+    this.cells = [];
+    this.prop = {
+      size: size_x * size_y,
+      xs: size_x,
+      ys: size_y,
+      xmax: size_x-1,
+      ymax: size_y-1
+    }
+    this.enable = {corner: false, center: false}
+    this.untouch = {min: 0, cur: this.prop.size - mcount}
+    this.locList = [];
+  }
+  test_and_push(loc) {
+    const index = this.prop.xs*loc.y + loc.x;
+    //console.log('untouchCellMin', this.untouch.min, 'untouchCellSizeInitial', this.untouch.cur, 'index', index);
+    if (this.untouch.cur > this.untouch.min) {
+      // threshold is untouch cell count lower limit
+      // when safe cell +1, untouch cell -1
+      if (this.cells.indexOf(index) < 0) {
+        // skip already existing safe cell
+        this.cells.push(index);
+        this.untouch.cur--;
+      }
+    }
+  }
+  config() {
+    const BDCONFIG = getBoardConfig();
+    if (/auto/.test(BDCONFIG)) {
+      const oddBoard = ((this.prop.xs % 2) && (this.prop.ys % 2)) ? true : false;
+      this.enable = {corner: !oddBoard, center: oddBoard}
+    } else {
+      this.enable.corner = (/corner|both/.test(BDCONFIG)) ? true : false;
+      this.enable.center = (/center|both/.test(BDCONFIG)) ? true : false;
+    }
+  }
+  points_corner() {
+    this.locList = [];
+    if (this.enable.corner) {
+      for (let y=0; y < this.prop.ys; y+=this.prop.ymax) {
+        for (let x=0; x < this.prop.xs; x+=this.prop.xmax) {
+          const loc = {x:x, y:y}
+          this.locList.push(loc);
+        }
+      }
+    }
+    return this;
+  }
+  points_center() {
+    this.locList = [];
+    if (this.enable.center) {
+      for (let y=parseInt((this.prop.ys-0.1) / 2); y <= parseInt(this.prop.ys / 2); y++) {
+        for (let x=parseInt((this.prop.xs-0.1) / 2); x <= parseInt(this.prop.xs / 2); x++) {
+          const loc = {x:x, y:y}
+          this.locList.push(loc);
+        }
+      }
+    }
+    return this;
+  }
+  points_pivot(loc) {
+    this.locList = [];
+    const USE_ADJCELL_WIDTH_MIN = 6;
+    const x_idx = (this.prop.xs > USE_ADJCELL_WIDTH_MIN) ? pibotAdjacent(loc.x, 0, this.prop.xmax) : [loc.x];
+    const y_idx = (this.prop.ys > USE_ADJCELL_WIDTH_MIN) ? pibotAdjacent(loc.y, 0, this.prop.ymax) : [loc.y];
+    for (let i=0; i < x_idx.length; i++) {
+      for (let j=0; j < y_idx.length; j++) {
+        const loc = {x:x_idx[i], y:y_idx[j]}
+        this.locList.push(loc);
+      }
+    }
+    return this;
+  }
+  pivot_test_points() {
+    const origLocList = [...this.locList];
+    for (let i=0; i < origLocList.length; i++) {
+      this.points_pivot(origLocList[i]).test_points();
+    }
+    return this;
+  }
+  test_points() {
+    for (let i=0; i < this.locList.length; i++) {
+      this.test_and_push(this.locList[i]);
+    }
+    return this;
   }
 }
 function createSafeCells(size_x, size_y, mcount) {
-  const USE_ADJCELL_WIDTH_MIN = 6;
-  // MINES : UNTOUCH = 10 : 10
+  // MINES : UNTOUCH = 1 : 1
   const USE_SAFECELL_MINE_RATIO_MIN = 1.0;
-  // MINES : UNTOUCH = 10 : 25
+  // MINES : UNTOUCH = 1 : 2.5
   const USE_ADJCELL_MINE_RATIO_MIN = 2.5;
-  const xmax = size_x-1;
-  const ymax = size_y-1;
-  const cellSize = size_x * size_y;
+  // SAFE_CELL + MINES + UNTOUCH = cellSize
+  // untouchCellMin1 is corner SAFE_CELL count max
+  // SAFE_CELL(max) = cellSize - MINES - UNTOUCH(=MINES * USE_SAFECELL_MINE_RATIO_MIN)
+  //                = cellSize - MINES * (1 + USE_SAFECELL_MINE_RATIO_MIN)
   const untouchCellMin1 = parseInt(mcount * USE_SAFECELL_MINE_RATIO_MIN);
+  // untouchCellMin2 is 3-side SAFE_CELL count max of corner SAFE_CELL
+  // SAFE_CELL(max) = cellSize - MINES - UNTOUCH(=MINES * USE_ADJCELL_MINE_RATIO_MIN)
+  //                = cellSize - MINES * (1 + USE_ADJCELL_MINE_RATIO_MIN)
   const untouchCellMin2 = parseInt(mcount * USE_ADJCELL_MINE_RATIO_MIN);
-  let untouchCellSize = cellSize - mcount;
-  let safeCell = [];
-  let threshold = {
-    min: 0,
-    cur: untouchCellSize,
-    test_and_push: function(x,y) {
-      const index = size_x*y + x;
-      //console.log('untouchCellMin', this.min, 'untouchCellSize', this.cur, 'index', index);
-      if (this.cur > this.min) {
-        if (safeCell.indexOf(index) < 0) {
-          safeCell.push(index);
-          this.cur--;
-        }
-      }
-    }
-  }
-  threshold.min = untouchCellMin1;
-  for (let y=0; y < size_y; y+=ymax) {
-    for (let x=0; x < size_x; x+=xmax) {
-      threshold.test_and_push(x, y);
-    }
-  }
-  threshold.min = untouchCellMin2;
-  for (let y=0; y < size_y; y+=ymax) {
-    for (let x=0; x < size_x; x+=xmax) {
-      const x_idx = (size_x > USE_ADJCELL_WIDTH_MIN) ? pibotAdjacent(x, 0, xmax) : [x];
-      const y_idx = (size_y > USE_ADJCELL_WIDTH_MIN) ? pibotAdjacent(y, 0, ymax) : [y];
-      for (let i=0; i < x_idx.length; i++) {
-        for (let j=0; j < y_idx.length; j++) {
-          threshold.test_and_push(x_idx[i], y_idx[j]);
-        }
-      }
-    }
-  }
-  return safeCell;
+  const sfz = new safeZone(size_x, size_y, mcount);
+  sfz.config();
+
+  // corner SAFE_CELL
+  sfz.untouch.min = untouchCellMin1;
+  sfz.points_corner().test_points();
+  
+  // 3-side SAFE_CELL of corner SAFE_CELL
+  sfz.untouch.min = untouchCellMin2;
+  sfz.points_corner().pivot_test_points();
+
+  // center SAFE CELL
+  // when enable, even size will use 2-center cells of each x and y
+  // when x is even, y is odd, use x is 2-center, y is 1-center
+  sfz.untouch.min = untouchCellMin1;
+  sfz.points_center().test_points();
+
+  // 8-side SAFE_CELL of center SAFE_CELL
+  sfz.untouch.min = untouchCellMin2;
+  sfz.points_center().pivot_test_points();
+
+  return sfz.cells.sort(compNum);
 }
 function createMines(rand, cellCount, minesCount, safeCell) {
   if (minesCount > cellCount) {
-    minesCount = cellCount;
+    // mines count is limited by cell count (-1)
+    minesCount = cellCount -1;
+    printConsole(`limit mines to ${minesCount}`);
   }
   let mines = [];
   for (let i=0; i < minesCount; i++) {
@@ -973,9 +1502,13 @@ function createCellElemArray(cellSize, mines) {
 }
 // generate board. return 'boardName' 'dataList...'
 // distroy SIZE_X and SIZE_Y
-function generateBoard(size_x, size_y, minesCount, rand) {
+function generateBoardData(size_x, size_y, minesCount, rand) {
   // avoid mines to be put at 4-corner reagion
-  const USE_SAFE_ZONE = 1
+  const USE_SAFE_ZONE = 1;
+  const MIN_SIZE = 2;
+  if ((size_x < MIN_SIZE) || (size_y < MIN_SIZE)) {
+    return undefined;
+  }
   SIZE_X = size_x;
   SIZE_Y = size_y;
   // skip the first rand to generate rand.iterate
@@ -983,17 +1516,19 @@ function generateBoard(size_x, size_y, minesCount, rand) {
   const boardId = rand.iterate;
   const cellSize = size_x * size_y;
   const safeCell = USE_SAFE_ZONE ? createSafeCells(size_x, size_y, minesCount) : [];
-  //console.log('safeCell', safeCell);
+  //console.log('safeCell', `${size_x}x${size_y}_${minesCount}`, getBoardConfig(), safeCell);
   const mines = createMines(rand, cellSize, minesCount, safeCell);
   //console.log('mines', mines);
   const cellElemArray = createCellElemArray(cellSize, mines);
-  cellData = '';
+  let cellData = '';
   for (let i=0; i < cellElemArray.length; i++) {
     const cell = new cellElem(i, cellElemArray);
     if (!cell.isBomb()) {
+      // count around bomb and write its count to innerHTML of cell
       let mcount = pivotCell(i, cellElemArray, cell, 'count_mines', undefined);
       //console.log('pivotCell', i, mcount);
     }
+    // update cell.value to cell.node.innerHTML
     cell.update();
     cellData += cell.value;
     // append newline at the tail of size_x
