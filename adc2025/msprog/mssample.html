@@ -67,6 +67,9 @@
       .numbox {
         width: 4rem;
       }
+      .widenumbox {
+        width: 6rem;
+      }
       .scrollbox {
         width: 10rem;
         height: 15rem;
@@ -77,12 +80,85 @@
         margin-left: 0rem;
       }
       .consolebox {
-        width: 30rem;
-        height: 4rem;
+        width: 40rem;
+        height: 5rem;
         font-size: 1.2rem;
         border: 1px solid #000;
         overflow-y: scroll;
         vertical-align: middle;
+      }
+      #mycoverall {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        /*
+        border: 1px solid #000;
+        */
+        top: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
+      }
+      #mycoverall.invisible {
+        display: none;
+      }
+      #mycoverall.extend {
+        display: flex;
+      }
+      .circleball {
+        width: 80px;
+        height: 80px;
+        margin: 0px;
+        border-radius: 50%;
+        box-sizing: border-box;
+        border: 10px solid rgb(128 128 128 / 50%);
+        border-top-color: rgb(128 128 128 / 100%);
+        /* duration timing-function delay iteration-count ... keyframes-name */
+        animation: 1s linear 0s fadein,
+                   2s linear 1s infinite rotation;
+      }
+      .loadtext {
+        position: absolute;
+        opacity: 0;
+        text-align: center;
+        animation: 2s linear 0.5s blink infinite;
+        /* duration timing-function delay iteration-count ... keyframes-name */
+        /*
+        animation: 0.1s linear 0s fadein,
+                   1s linear 0.1s infinite blink;
+        */
+      }
+      @property --count {
+        syntax: "<integer>";
+        inherits: true;
+        initial-value: 0;
+      }
+      .loadcount {
+        counter-set: elapsed var(--count);
+        animation: 3600s linear 0s infinite countup;
+        animation-fill-mode: forwards;
+      }
+      .loadcount::after {
+        content: counter(elapsed) " sec";
+      }
+      @keyframes countup {
+        0% { --count: 0; }
+        100% { --count: 3600; }
+      }
+      @keyframes rotation {
+        0% { transform: rotate(0); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes blink {
+        0%, 100% { opacity: 0; }
+        50% { opacity: 1; }
+      }
+      @keyframes fadein {
+        0% { opacity: 0; }
+        90% { opacity: 0; }
+        100% { opacity: 1; }
       }
       hr {
         border: none;
@@ -150,13 +226,18 @@
       let BOARD_NAME = '<board_name_unknown>';
       let BOARD_HEADER = '<board_header_unknown>';
       let BOARD_RAND = new randomparam();
-      let FLAG = 0;
+      let FLAG_UPDATE = 0;
       let BDROOT = new Board();
       let SUMMARY = undefined;
       let MINES_VALUE = 9;
     </script>
   </head>
   <body>
+    <div id="mycoverall" class="invisible">
+      <div class="circleball"></div>
+      <div id="myloading" class="loadtext">loading...<BR><span class="loadcount"></span></div>
+    </div>
+    </div>
     <div class="vdiv">
       <form class="box">お試しマインスイーパー</form>
       <form><hr></form>
@@ -182,11 +263,11 @@
       <form id="mybdconfig">
         <div class="hdiv">
           <label class="box">安全セルの設定：</label>
-          <label class="checkbox"><input type="radio" name="bdconfig" value="auto" checked/>auto</label>
-          <label class="checkbox"><input type="radio" name="bdconfig" value="corner"/>corner</label>
-          <label class="checkbox"><input type="radio" name="bdconfig" value="center"/>center</label>
-          <label class="checkbox"><input type="radio" name="bdconfig" value="both"/>both</label>
-          <label class="checkbox"><input type="radio" name="bdconfig" value="none"/>none</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="auto" checked/>auto</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="corner"/>corner</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="center"/>center</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="both"/>both</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="none"/>none</label>
           <button type="button" id="myselectreconfig" class="checkbox">update sample</button>      
         </div>
         <div class="hdiv">
@@ -207,16 +288,16 @@
         <label class="box">ボード初期化：</label>
         <button id="myreset" type="reset" class="checkbox">reset</button>
         <label class="box">盤面データ表示切替：</label>
-        <button type="button" id="mytoggle" class="checkbox" onclick="foreachUntouchCells('toggleVisibility')">ON/OFF</button>
+        <button type="button" id="mytoggle" class="checkbox" onclick="toggleVisibility()">ON/OFF</button>
       </div>
-      <form id="myform">
-        <!-- reset effective form region begin -->
+      <form id="mybdplay">
+        <!-- reset effective mybdplay form region begin -->
         <div class="hdiv">
           <label class="box">旗を立てる：</label>
           <button type="button" id="myflag" class="checkbox" onclick="flagUpdate('toggle')">Flag ON/OFF</button>
           <output id="mystatus" class="checkbox">off</output>
           <label class="box">残りセル数：</label>
-          <output id="myremain" class="checkbox">remaining cells...</output>
+          <output id="myremains" class="checkbox">remaining cells...</output>
         </div>
         <div class="hdiv">
           <label class="box smallbox">※ 盤面のセル (X,Y) は横方向 X、縦方向 Y、左上が (0,0) となります</label>
@@ -260,19 +341,66 @@
           <output id="mydownloadsummarystatus" class="checkbox">none</output>
         </div>        
         <hr>
-        <!-- reset effective form region end -->
+        <!-- reset effective mybdplay form region end -->
       </form>
-      <form>
-      <div class="hdiv">
-        <table class="summarybox">
-          <tr>
-            <td class="top">スコア・サマリ：</td>
-            <td><table id="mysummary" class="mssummary top"></table></td>
-          </tr>
-        </table>
-      </div>
+      <form id="mybdpackconfig">
+        <div class="hdiv">
+          <label class="smallbox">（お試し運用中）</label>
+        </div>        
+        <div class="hdiv">
+          <label class="box">盤面データ・パック：</label>
+          <label class="checkbox smallbox">board count /pack</label>
+          <input type="number" id="mybdcount" class="checkbox widenumbox" min="10" step="10" value="10"/>
+        </div>
+        <div class="hdiv">
+          <label class="box">安全セルの設定：</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="auto" checked/>auto</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="corner"/>corner</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="center"/>center</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="both"/>both</label>
+          <label class="checkbox"><input type="radio" name="bdsafe" value="none"/>none</label>
+        </div>
+        <div class="hdiv">
+          <label class="box">難易度：爆弾の比率：</label>
+          <label class="checkbox"><input type="radio" name="bdmsratio" value="low" checked/>low</label>
+          <label class="checkbox smallbox">(5 - 10%)</label>
+          <label class="checkbox"><input type="radio" name="bdmsratio" value="middle"/>middle</label>
+          <label class="checkbox smallbox">(8 - 15%)</label>
+          <label class="checkbox"><input type="radio" name="bdmsratio" value="high"/>high</label>
+          <label class="checkbox smallbox">(10 - 20%)</label>
+        </div>
+        <div class="hdiv">
+          <label class="box">　　　　　　　　　　</label>
+          <label class="checkbox"><input type="radio" name="bdmsratio" value="dangerous"/>dangerous</label>
+          <label class="checkbox smallbox">(13 - 25%)</label>
+          <label class="checkbox"><input type="radio" name="bdmsratio" value="serious"/>serious</label>
+          <label class="checkbox smallbox">(15 - 30%)</label>
+          <label class="checkbox"><input type="radio" name="bdmsratio" value="ultra"/>ultra</label>
+          <label class="checkbox smallbox">(18 - 35%)</label>
+        </div>        <div class="hdiv">
+          <label class="box">　　データ　　：</label>
+          <button type="button" id="mydownloadpack" class="checkbox">download board data pack</button>
+          <output id="mydownloadpackstatus" class="checkbox">none</output>
+        </div>
+        <div class="hdiv">
+          <label class="box">　　盤面リスト：</label>
+          <button type="button" id="mydownloadlist" class="checkbox">download board list</button>
+          <output id="mydownloadliststatus" class="checkbox">none</output>
+        </div>
+        <hr>
       </form>
-      <div class="right smallbox">version 2025/4/21</div>
+      <form id="mybdscore">
+        <div class="hdiv">
+          <table class="summarybox">
+            <tr>
+              <td class="top">スコア・サマリ：</td>
+              <td><table id="mysummary" class="mssummary top"></table></td>
+            </tr>
+          </table>
+        </div>
+        <hr>
+      </form>
+      <div class="right smallbox">DA シンポジウム 2025 version 2025/5/10</div>
     </div>
     <script>
       createBoardSelector();
