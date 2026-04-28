@@ -1,4 +1,28 @@
 // Minesweeper control program by keisuke Nakamura (2025/3/23)
+
+// score state (per board)
+let BOMB_TOTAL = 0;
+let SAFE_TOTAL = 0;
+let OPEN_SAFE = 0;
+let OPEN_BOMB = 0;
+
+function clampScore(v) {
+  if (v > 1) return 1;
+  if (v < -1) return -1;
+  return v;
+}
+
+function computeBoardScore() {
+  const sPart = (SAFE_TOTAL > 0) ? (OPEN_SAFE / SAFE_TOTAL) : 0;
+  const bPart = (BOMB_TOTAL > 0) ? (OPEN_BOMB / BOMB_TOTAL) : 0;
+  return clampScore(sPart - bPart);
+}
+
+function printMinesTotal(n) {
+  const minesBox = document.getElementById('mymines');
+  if (minesBox != null) minesBox.value = n;
+}
+
 // dummy cell element node
 class cellElemNode {
   constructor(value) {
@@ -312,9 +336,6 @@ function checkRemains() {
   const remains = cells.countAlive();
   //console.log('count alive', remains);
   printRemains(remains);
-  if (remains == 0) {
-    finishSelection();
-  }
 }
 function appendScrollBox(box, msg) {
   box.scrollTop = box.scrollHeight;
@@ -338,31 +359,21 @@ function printDialog(msg) {
 function printScore(cell, incr, type) {
   const scoreBox = document.getElementById('myscore');
   if (incr != 0) {
-    let delta = (incr > 0) ? '+' : '';
-    let msg = `(${delta}${incr}) ${SCORE}`;
-    if (type == 'penalty') {
-      const [x, y] = cell.location();
-      msg += ` (${x},${y})`;
-    }
-    //scroll before print
-    msg += '\n';
-    appendScrollBox(scoreBox, msg); 
+    const sign = (incr > 0) ? '+' : '';
+    const msg = `(${sign}${Number(incr).toFixed(6)}) ${Number(SCORE).toFixed(6)}`;
+    appendScrollBox(scoreBox, msg + '\n');
   }
 }
+
 // print to result in html
 function printResult(score) {
   const resultBox = document.getElementById('myresult');
-  let msg = `${score}`;
-  let finalScore = score;
-  if (score < 0) {
-    msg += ' => count as 0';
-    finalScore = 0;
-  }
-  msg += ` (${BOARD_NAME})`
-  resultBox.value = msg;  
-  // print to console
-  printConsole(`score ${finalScore} ${BOARD_NAME}`);
+  const s = Number(score).toFixed(6);
+  const msg = `${s} (${BOARD_NAME})`;
+  resultBox.value = msg;
+  printConsole(`score ${s} ${BOARD_NAME}`);
 }
+
 // flag update mode status
 function printFUstatus() {
   const statusBox = document.getElementById('mystatus');
@@ -431,6 +442,10 @@ async function accessCell(index, cellElemArray, cell, source) {
     // remove flag automatically
     cell.unflag();
     showMsg('touch');
+
+    // update open counters (only first touch reaches here)
+    if (cell.isBomb()) OPEN_BOMB++;
+    else OPEN_SAFE++;
     if (cell.isEmpty()) {
       showMsg('empty');
       // pivot to expand reagion
@@ -453,8 +468,12 @@ async function accessCell(index, cellElemArray, cell, source) {
       const [x, y] = cell.location();
       printConsole(`bomb!! (${x},${y})`);
     }
-    // count score
-    countScore(cell, 'obtain');
+
+    // update score (delta)
+    const prev = SCORE;
+    const next = computeBoardScore();
+    SCORE = next;
+    printScore(cell, (next - prev), 'delta');
   }
   return 1;
 }
@@ -1494,10 +1513,14 @@ function addUploadEventListener() {
 function initializeBoard() {
   //reset score and visibility
   SCORE = 0;
+  OPEN_SAFE = 0;
+  OPEN_BOMB = 0;
   VISIBILITY = 0;
   flagUpdate('init');
   BDROOT.closed = false;
   //BDROOT.touchList = [];
+  printMinesTotal(BOMB_TOTAL);
+  printRemains(SAFE_TOTAL);
 }
 function removeEventListener() {
   const board = document.getElementById('myboard');
@@ -1567,6 +1590,7 @@ function createBoard(lines) {
   const board = document.getElementById('myboard');
   let count_x = 0;
   let count_y = 0;
+  let mineCnt = 0;
   // reset global
   SIZE_Y = 0;
   SIZE_X = 0;
@@ -1596,6 +1620,7 @@ function createBoard(lines) {
       }
       let tchar = document.createElement('td');
       tchar.innerText = chars[char];
+    if (Number(chars[char]) >= MINES_VALUE) mineCnt++;
       tchar.className = 'init invisible';
       tline.appendChild(tchar);
     }
@@ -1610,6 +1635,15 @@ function createBoard(lines) {
   SIZE_Y = count_y;
   // the last index of table cell
   IDX_MAX = SIZE_X * SIZE_Y -1;
+
+  // init per-board score stats
+  BOMB_TOTAL = mineCnt;
+  SAFE_TOTAL = (SIZE_X * SIZE_Y) - BOMB_TOTAL;
+  OPEN_SAFE = 0;
+  OPEN_BOMB = 0;
+  SCORE = 0;
+  printMinesTotal(BOMB_TOTAL);
+  printRemains(SAFE_TOTAL);
 }
 class untouchCellTask {
   constructor() {
@@ -1728,12 +1762,10 @@ class SummaryTable {
   }
   put(board_name, score) {
     score = Number(score);
-    const scoreStr = (score < 0) ? `(${score}) 0` : score;
-    if (score > 0) {
-      this.total += score;      
-    }
+    const scoreStr = score.toFixed(6);
+    this.total += score;
     const trial = this.trial++;
-    const totalStr = this.total;
+    const totalStr = this.total.toFixed(6);
     const items = [trial, board_name, scoreStr, totalStr];
     this.append(items);
     return this;
@@ -1741,8 +1773,6 @@ class SummaryTable {
 }
 function finishSelection() {
   if (!BDROOT.closed) {
-    const cells = new untouchCellTask();
-    cells.countPenalty().closure();
     printResult(SCORE);
     // clear board event listener
     removeEventListener();
