@@ -945,19 +945,15 @@ class boardFile {
     }
     return [...size];
   }
-  //boardData(boardName, header, cellData) {
-  //  const data = [header, cellData.join('\n')];
-  //   //const boardData = [boardName, data];
-  //  //console.log('boardData(popData)', boardData);
-  //  //return [...boardData];
-  //  const boardData = {name: boardName, data: data}
-  //  return boardData;
-  //}
   boardData(boardName, header, cellData) {
-  const data = [header, cellData.join('\n')];
-  const boardData = {name: boardName, data: data}
-  return boardData;
- }
+    const data = [header, cellData.join('\n')];
+     //const boardData = [boardName, data];
+    //console.log('boardData(popData)', boardData);
+    //return [...boardData];
+    const boardData = {name: boardName, data: data}
+    return boardData;
+  }
+  
   cat_and_split(dataList) {
     let lines = [];
     const [size_x, size_y] = this.size;
