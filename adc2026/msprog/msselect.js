@@ -895,9 +895,9 @@ class boardFile {
   boardName() {
     let fname = [];
     const itemList = this.header.split(/[ ]+/);
-    if (itemList.length >= 3) {
-      // header is <size_x> <size_y> <boardName>
-      fname.push(itemList[2]);
+    if (itemList.length >= 4) {
+      // header is <size_x> <size_y> <mines> <boardName>
+      fname.push(itemList[3]);
     } else {
       // boardName is <size_x>x<size_y>_<mines>_<boardId>_<safeCellLoc>
       fname.push(this.baseFileName());
@@ -997,7 +997,7 @@ class boardFile {
     // board name determined
     const bdname = this.boardName();
     // header updated by size and bdname
-    this.header = [...this.size, bdname].join(' ');
+    this.header = [...this.size, this.mines, bdname].join(' ');
     cellData = this.cat_and_split(cellData);
     return this.boardData(bdname, this.header, cellData);
   }
