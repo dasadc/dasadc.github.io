@@ -684,7 +684,7 @@ class Board {
       rand.seek(iterate);
       //console.log('new board iterate', iterate, 'found rand iterate (should be iterate-1)', rand.iterate);
     }
-    this.boardData = generatex, y, m, rand, safeCellLoc);
+    this.boardData = generateBoardData(x, y, m, rand, safeCellLoc);
     return this;
   }
   new_size_mines(step) {
@@ -947,13 +947,12 @@ class boardFile {
   }
   boardData(boardName, header, cellData) {
     const data = [header, cellData.join('\n')];
-     //const boardData = [boardName, data];
+    //const boardData = [boardName, data];
     //console.log('boardData(popData)', boardData);
     //return [...boardData];
     const boardData = {name: boardName, data: data}
     return boardData;
   }
-  
   cat_and_split(dataList) {
     let lines = [];
     const [size_x, size_y] = this.size;
@@ -998,8 +997,7 @@ class boardFile {
     // board name determined
     const bdname = this.boardName();
     // header updated by size and bdname
-    //this.header = [...this.size, this.mines, bdname].join(' ');
-	this.header = [...this.size, this.mines, bdname].join(' ');
+    this.header = [...this.size, this.mines, bdname].join(' ');
     cellData = this.cat_and_split(cellData);
     return this.boardData(bdname, this.header, cellData);
   }
