@@ -152,16 +152,15 @@ module board (
 - マインスイーパーVerilog実装サンプルでは全てのセルの値が 0x0F、0x10 から 0x18、0x1F のいずれかになっていれば終了となります。
 
 
-## 競技用盤面データの提供 ![更新](images/update.PNG)
+## 競技用盤面データの提供 ![更新](images/update.PNG) {#fpga_board_data}
 -  盤面データはテキストファイル（`board_pack_1000_fpga.txt`）です。以下からダウンロードください。
 - [==> FPGA 競技用盤面データのダウンロード](adc2026_minesweeper_fpga_benchmark.zip)
 - 最大の盤面サイズは **19x19** です。
 - なお、最初に選択したセルが安全セルである保証はありません。
 
 ## 結果の記録
-- 競技用盤面データに対する実行結果を、「競技用盤面データの提供」からダウンロードした zip ファイル（adc2026_minesweeper_fpga_benchmark.zip）に同梱の Excel（minesweeper_fpga_result.xlsx）に記録してください。
-- Excel には 2 つのシートが含まれていますので、それぞれの指示に従って記入してください。
-- 記録する内容には、解答した盤面数、実行時間、および合計スコアが含まれます。
+- 競技用盤面データに対する実行結果を、**[上記](#fpga_board_data)でダウンロードした zip ファイル（adc2026_minesweeper_fpga_benchmark.zip）に同梱の Excelシート（minesweeper_fpga_result.xlsx）** に記入ください。
+- Excelシート は 2 つのシートを含みます。それぞれ記入ください。
   
 ## 提出方法 ![更新](images/update.PNG)
 - FPGA 競技の結果を記載する Excel ファイルを競技用盤面データとあわせて公開予定です。
