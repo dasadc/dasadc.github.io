@@ -2,7 +2,7 @@
 <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
 
-# アルゴリズムデザインコンテスト2026概要 (ADC 2026)
+# アルゴリズムデザインコンテスト2026概要<br>(ADC 2026)  
 
 DAシンポジウムでは、2012年からアルゴリズムデザインコンテスト(ADC)を開催しています。
 2026年のテーマは、昨年に引き続き「マインスイーパー<sup>※</sup>」です。
