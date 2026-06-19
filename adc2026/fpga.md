@@ -93,7 +93,7 @@
 - 実装の一例として、マインスイーパーVerilog実装テンプレートを提供いたします。**使用は必須ではありません**。なお、データ形式が異なるため、**競技用盤面データをそのまま入力できません**。
 - マインスイーパーVerilog実装テンプレートの詳細は、アーカイブ中の [readme.md](mine_sweeper_fpga_readme.html) をご参照ください。
 - マインスイーパーVerilog実装テンプレートは以下からダウンロードしてください。
-### [==> マインスイーパーVerilog実装テンプレートのダウンロード](mine_sweeper_r3.zip)
+### [==> マインスイーパーVerilog実装テンプレートのダウンロード](mine_sweeper_fpga_sample.zip)
 
 ## サンプル盤面データについて ![更新](images/update.PNG)
 - サンプルの盤面データは [マインスイーパーVerilog実装テンプレート](#my_anchor_mimesweeper_module) に含まれています。
