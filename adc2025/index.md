@@ -2,7 +2,7 @@
 <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
 
-# アルゴリズムデザインコンテスト2025概要 (ADC 2025)
+# アルゴリズムデザインコンテスト2025概要<br>(ADC 2025)
 
 DAシンポジウムでは、2012年からデザインコンテストを開催しています。
 2025年のテーマは「マインスイーパー<sup>※</sup>」です。
