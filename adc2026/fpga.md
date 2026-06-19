@@ -1,7 +1,7 @@
 <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax:{inlineMath:[['\$','\$'],['\\(','\\)']],processEscapes:true},CommonHTML: {matchFontHeight:false}});</script>
 <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 
-# FPGA競技について
+# FPGA競技 概要
 
 ## 更新情報 ![更新](images/update.PNG)
 - 2026-04-28 初版を公開しました
