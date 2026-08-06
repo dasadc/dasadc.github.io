@@ -122,7 +122,7 @@
 
 ## 競技用盤面データの提供について [](![更新](images/update.PNG))
 -  盤面データはテキストファイル（`board_pack_10000_prog.txt`）です。以下からダウンロードください。
-- [==> FPGA 競技用盤面データのダウンロード](adc2026_minesweeper_prog_benchmark.zip)
+- [==> プログラミング競技用盤面データのダウンロード](adc2026_minesweeper_prog_benchmark.zip)
 - 最大の盤面サイズは **19x19** です。
 - なお、最初に選択したセルが安全セルである保証はありません。
 
